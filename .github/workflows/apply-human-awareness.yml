@@ -56,24 +56,47 @@ jobs:
           chmod +x /tmp/sourcemod/addons/sourcemod/scripting/spcomp
 
       - name: Compile bot_ai.sp
+        id: compile
         shell: bash
         run: |
-          set -euo pipefail
+          set +e
           mkdir -p /tmp/tf2-bot-build
           /tmp/sourcemod/addons/sourcemod/scripting/spcomp \
             -i/tmp/sourcemod/addons/sourcemod/scripting/include \
             -o/tmp/tf2-bot-build/bot_ai.smx \
-            "addons/sourcemod/scripting/bot overhaul/bot_ai.sp"
+            "addons/sourcemod/scripting/bot overhaul/bot_ai.sp" \
+            2>&1 | tee /tmp/spcomp.log
+          status=${PIPESTATUS[0]}
+          echo "status=${status}" >> "$GITHUB_OUTPUT"
+          exit 0
 
-      - name: Commit verified source update
+      - name: Preserve compile diagnostics
+        if: steps.compile.outputs.status != '0'
         shell: bash
         run: |
           set -euo pipefail
-          rm automation/human-awareness-v1.patch.gz.b64
+          cp /tmp/spcomp.log automation/spcomp.log
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add automation/spcomp.log
+          git commit -m "Record awareness compile diagnostics" || true
+          git push origin HEAD:feature/human-awareness-v1
+
+      - name: Fail on compiler errors
+        if: steps.compile.outputs.status != '0'
+        shell: bash
+        run: exit 1
+
+      - name: Commit verified source update
+        if: steps.compile.outputs.status == '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f automation/human-awareness-v1.patch.gz.b64 automation/spcomp.log
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add README.md docs/HUMAN_AWARENESS_V1.md \
             "addons/sourcemod/scripting/bot overhaul/bot_ai.sp" \
-            automation/human-awareness-v1.patch.gz.b64
+            automation/human-awareness-v1.patch.gz.b64 automation/spcomp.log
           git commit -m "Add human awareness v1"
           git push origin HEAD:feature/human-awareness-v1
