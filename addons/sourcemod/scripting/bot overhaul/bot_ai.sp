@@ -28,8 +28,34 @@ bool MedkitNear[MAXPLAYERS+1] = false;
 bool SpyAttack[MAXPLAYERS+1] = false;
 bool ImproveAI[MAXPLAYERS+1] = false;
 
+// Human-awareness state. These values sit underneath the class-specific logic so
+// every combat class shares the same reaction, target-lock, and memory rules.
+int g_awarenessTarget[MAXPLAYERS + 1];
+int g_awarenessPendingTarget[MAXPLAYERS + 1];
+int g_awarenessCachedCandidate[MAXPLAYERS + 1];
+bool g_awarenessTargetVisible[MAXPLAYERS + 1];
+bool g_humanAnglesInitialized[MAXPLAYERS + 1];
+float g_awarenessReactionUntil[MAXPLAYERS + 1];
+float g_awarenessMemoryUntil[MAXPLAYERS + 1];
+float g_awarenessTargetLockUntil[MAXPLAYERS + 1];
+float g_awarenessNextScanAt[MAXPLAYERS + 1];
+float g_awarenessLastKnownPos[MAXPLAYERS + 1][3];
+float g_humanViewAngles[MAXPLAYERS + 1][3];
+float g_humanAimOffset[MAXPLAYERS + 1][2];
+float g_humanAimOffsetUntil[MAXPLAYERS + 1];
+float g_humanAimLastUpdate[MAXPLAYERS + 1];
+float g_humanAimSnapReactionUntil[MAXPLAYERS + 1];
+float g_humanSkillVariance[MAXPLAYERS + 1];
+
 ConVar g_btEnable;
 ConVar g_botDifficulty;
+ConVar g_humanAwarenessEnable;
+ConVar g_humanReactionMin;
+ConVar g_humanReactionMax;
+ConVar g_humanMemoryMin;
+ConVar g_humanMemoryMax;
+ConVar g_humanTargetLockMin;
+ConVar g_humanTargetLockMax;
 
 public Plugin myinfo = {
 	name = "Bot AI",
@@ -42,8 +68,21 @@ public void OnPluginStart()
 {
 	HookEvent("teamplay_round_start", SetupStarted);
 	HookEvent("teamplay_setup_finished", RoundStarted);
+	HookEvent("player_hurt", PlayerHurt);
 	g_btEnable = CreateConVar("tf_bot_ai_tweaks", "1", "Enables many ai tweaks to make bots smarter. This is performance costly. Default = 1.", _, true, 0.0, true, 1.0);
+	g_humanAwarenessEnable = CreateConVar("tf_bot_human_awareness", "1", "Adds reaction delay, target memory, target commitment, and humanized turning to improved bots.", _, true, 0.0, true, 1.0);
+	g_humanReactionMin = CreateConVar("tf_bot_human_reaction_min", "0.12", "Minimum visual reaction delay before a bot accepts a new enemy target.", _, true, 0.02, true, 1.5);
+	g_humanReactionMax = CreateConVar("tf_bot_human_reaction_max", "0.42", "Maximum visual reaction delay before a bot accepts a new enemy target.", _, true, 0.02, true, 2.0);
+	g_humanMemoryMin = CreateConVar("tf_bot_human_memory_min", "0.65", "Minimum time a bot remembers the last place it saw an enemy.", _, true, 0.0, true, 5.0);
+	g_humanMemoryMax = CreateConVar("tf_bot_human_memory_max", "1.85", "Maximum time a bot remembers the last place it saw an enemy.", _, true, 0.0, true, 8.0);
+	g_humanTargetLockMin = CreateConVar("tf_bot_human_target_lock_min", "0.80", "Minimum time a bot prefers its current visible target before switching.", _, true, 0.0, true, 5.0);
+	g_humanTargetLockMax = CreateConVar("tf_bot_human_target_lock_max", "2.20", "Maximum time a bot prefers its current visible target before switching.", _, true, 0.0, true, 8.0);
 	g_botDifficulty = FindConVar("tf_bot_difficulty");
+
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		ResetHumanAwareness(client);
+	}
 }
 
 public Action RoundStarted(Handle event, const char[] name, bool dontBroadcast)
@@ -54,6 +93,36 @@ public Action RoundStarted(Handle event, const char[] name, bool dontBroadcast)
 public Action SetupStarted(Handle event, const char[] name, bool dontBroadcast)
 {
 	Setup = 1;
+
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		ResetHumanAwareness(client);
+	}
+}
+
+public Action PlayerHurt(Handle event, const char[] name, bool dontBroadcast)
+{
+	int victim = GetClientOfUserId(GetEventInt(event, "userid"));
+	int attacker = GetClientOfUserId(GetEventInt(event, "attacker"));
+
+	if (!IsValidClient(victim) || !IsFakeClient(victim) || !IsPlayerAlive(victim))
+	{
+		return Plugin_Continue;
+	}
+
+	if (!IsHumanAwarenessEnemy(victim, attacker))
+	{
+		return Plugin_Continue;
+	}
+
+	// Damage is a strong awareness cue, including attacks from outside the bot's
+	// current field of view, but it still receives a short human reaction delay.
+	g_awarenessTarget[victim] = attacker;
+	g_awarenessTargetVisible[victim] = false;
+	BeginAwarenessReaction(victim, attacker, 0.35);
+	RememberAwarenessTarget(victim, attacker);
+
+	return Plugin_Continue;
 }
 
 public void OnMapStart()
@@ -68,6 +137,11 @@ public void OnMapStart()
 	CreateTimer(12.0, ShortTimer,_, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 	
 	BotBegin = 0;
+
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		ResetHumanAwareness(client);
+	}
 }
 
 void MapCheck()
@@ -115,28 +189,24 @@ void MapCheck()
 	}
 }
 
-float moveForward(float vel[3],float MaxSpeed)
+void moveForward(float vel[3],float MaxSpeed)
 {
 	vel[0] = MaxSpeed;
-	return vel;
 }
 
-float moveBackwards(float vel[3],float MaxSpeed)
+void moveBackwards(float vel[3],float MaxSpeed)
 {
 	vel[0] = -MaxSpeed;
-	return vel;
 }
 
-float moveSide(float vel[3],float MaxSpeed)
+void moveSide(float vel[3],float MaxSpeed)
 {
 	vel[1] = MaxSpeed;
-	return vel;
 }
 
-float moveSide2(float vel[3],float MaxSpeed)
+void moveSide2(float vel[3],float MaxSpeed)
 {
 	vel[1] = -MaxSpeed;
-	return vel;
 }
 
 stock void TF2_SwitchtoSlot(int client, int slot)
@@ -222,6 +292,7 @@ public bool ExcludeFilter(int entity, int contentsMask, any iExclude)
 public void OnClientPutInServer(int client) 
 {
     SDKHook(client, SDKHook_WeaponSwitch, OnWeaponSwitch);
+	ResetHumanAwareness(client);
 	
 	if(!IsFakeClient(client))
 	{
@@ -424,6 +495,12 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 		BotTimer[client] = GetGameTime() + 1.0;
 	}
 			
+	if (IsFakeClient(client) && (!IsPlayerAlive(client) || !ImproveAI[client])
+		&& (g_humanAnglesInitialized[client] || g_awarenessTarget[client] != -1 || g_awarenessPendingTarget[client] != -1))
+	{
+		ResetHumanAwareness(client);
+	}
+
 	if(g_btEnable.IntValue > 0 && IsFakeClient(client) && IsPlayerAlive(client) && ImproveAI[client] && !TF2_IsPlayerInCondition(client, TFCond_CritOnWin) && GetEntProp(client, Prop_Send, "m_iStunFlags") != TF_STUNFLAGS_LOSERSTATE)
 	{
 		//PrintToChatAll("BOT IS IMPROVED!");
@@ -534,7 +611,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 
 		float clientEyes[3];
 		GetClientEyePosition(client, clientEyes);
-		int Ent = Client_GetClosest(clientEyes, client);
+		int Ent = UpdateHumanAwareness(client);
 
 		if(IsValidEntity(Ent))
 		{
@@ -1671,7 +1748,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 							buttons |= IN_JUMP;
 							buttons |= IN_DUCK;
 							buttons |= IN_ATTACK;
-							vel = moveForward(vel,9000.0);
+							moveForward(vel,9000.0);
 							//PrintToChatAll("ROCKET JUMPING!");
 							SoldierTimerNum = 0;
 						}
@@ -1969,6 +2046,10 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			}
 		}
 		
+		// Apply the shared view/reaction layer after class logic has selected its
+		// movement and buttons. This catches snap turns from the stock bot brain too.
+		HumanizeAwarenessCommand(client, buttons, angles);
+
 		// This is used for certain parts to reduce the amount of time the code is ran.
 		// But it only works in specific areas.
 		CheckTimer = CreateTimer(1.0, ResetCheckTimer);
@@ -1978,6 +2059,515 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	}
 	
 	return Plugin_Continue;
+}
+
+
+void ResetHumanAwareness(int client)
+{
+	if (client < 1 || client > MaxClients)
+	{
+		return;
+	}
+
+	g_awarenessTarget[client] = -1;
+	g_awarenessPendingTarget[client] = -1;
+	g_awarenessCachedCandidate[client] = -1;
+	g_awarenessTargetVisible[client] = false;
+	g_humanAnglesInitialized[client] = false;
+	g_awarenessReactionUntil[client] = 0.0;
+	g_awarenessMemoryUntil[client] = 0.0;
+	g_awarenessTargetLockUntil[client] = 0.0;
+	g_awarenessNextScanAt[client] = 0.0;
+	g_humanAimOffsetUntil[client] = 0.0;
+	g_humanAimLastUpdate[client] = 0.0;
+	g_humanAimSnapReactionUntil[client] = 0.0;
+	g_humanSkillVariance[client] = GetRandomFloat(0.88, 1.12);
+
+	for (int axis = 0; axis < 3; axis++)
+	{
+		g_awarenessLastKnownPos[client][axis] = 0.0;
+		g_humanViewAngles[client][axis] = 0.0;
+	}
+
+	g_humanAimOffset[client][0] = 0.0;
+	g_humanAimOffset[client][1] = 0.0;
+}
+
+bool IsHumanAwarenessEnemy(int client, int target)
+{
+	if (client < 1 || client > MaxClients || target < 1 || target > MaxClients)
+	{
+		return false;
+	}
+
+	if (!IsValidClient(client) || !IsValidClient(target) || client == target)
+	{
+		return false;
+	}
+
+	if (!IsPlayerAlive(target) || GetClientTeam(client) == GetClientTeam(target))
+	{
+		return false;
+	}
+
+	if (TF2_IsPlayerInCondition(target, TFCond_Cloaked) || TF2_IsPlayerInCondition(target, TFCond_Disguised))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+float GetAwarenessDifficultyScale()
+{
+	if (g_botDifficulty == null)
+	{
+		return 1.0;
+	}
+
+	switch (g_botDifficulty.IntValue)
+	{
+		case 0: return 1.45;
+		case 1: return 1.18;
+		case 2: return 0.95;
+		case 3: return 0.78;
+	}
+
+	return 1.0;
+}
+
+float GetAwarenessReactionDelay(int client, int target)
+{
+	float minimum = g_humanReactionMin.FloatValue;
+	float maximum = g_humanReactionMax.FloatValue;
+	if (maximum < minimum)
+	{
+		maximum = minimum;
+	}
+
+	float delay = GetRandomFloat(minimum, maximum);
+	delay *= GetAwarenessDifficultyScale();
+	delay *= g_humanSkillVariance[client];
+
+	float clientPos[3];
+	float targetPos[3];
+	GetClientAbsOrigin(client, clientPos);
+	GetClientAbsOrigin(target, targetPos);
+	float distance = GetVectorDistance(clientPos, targetPos);
+
+	// Distant targets take slightly longer to visually parse.
+	float distanceDelay = distance / 8000.0;
+	if (distanceDelay > 0.16)
+	{
+		distanceDelay = 0.16;
+	}
+	delay += distanceDelay;
+
+	return delay < 0.02 ? 0.02 : delay;
+}
+
+float GetAwarenessMemoryDuration(int client)
+{
+	float minimum = g_humanMemoryMin.FloatValue;
+	float maximum = g_humanMemoryMax.FloatValue;
+	if (maximum < minimum)
+	{
+		maximum = minimum;
+	}
+
+	float duration = GetRandomFloat(minimum, maximum);
+	float difficulty = GetAwarenessDifficultyScale();
+	if (difficulty > 1.5)
+	{
+		difficulty = 1.5;
+	}
+
+	return duration * (2.0 - difficulty) * g_humanSkillVariance[client];
+}
+
+float GetAwarenessTargetLockDuration(int client)
+{
+	float minimum = g_humanTargetLockMin.FloatValue;
+	float maximum = g_humanTargetLockMax.FloatValue;
+	if (maximum < minimum)
+	{
+		maximum = minimum;
+	}
+
+	return GetRandomFloat(minimum, maximum) * g_humanSkillVariance[client];
+}
+
+void RememberAwarenessTarget(int client, int target)
+{
+	if (!IsHumanAwarenessEnemy(client, target))
+	{
+		return;
+	}
+
+	GetClientEyePosition(target, g_awarenessLastKnownPos[client]);
+	g_awarenessMemoryUntil[client] = GetGameTime() + GetAwarenessMemoryDuration(client);
+}
+
+void BeginAwarenessReaction(int client, int target, float delayScale = 1.0)
+{
+	if (!IsHumanAwarenessEnemy(client, target))
+	{
+		return;
+	}
+
+	if (g_awarenessPendingTarget[client] != target)
+	{
+		g_awarenessPendingTarget[client] = target;
+		g_awarenessReactionUntil[client] = GetGameTime() + (GetAwarenessReactionDelay(client, target) * delayScale);
+	}
+}
+
+bool IsTargetInsideHumanFov(int client, int target, float fieldOfView)
+{
+	float clientPos[3];
+	float targetPos[3];
+	float aimForward[3];
+	float direction[3];
+	float viewAngles[3];
+
+	GetClientEyePosition(client, clientPos);
+	GetClientEyePosition(target, targetPos);
+	MakeVectorFromPoints(clientPos, targetPos, direction);
+	NormalizeVector(direction, direction);
+
+	if (g_humanAnglesInitialized[client])
+	{
+		viewAngles[0] = g_humanViewAngles[client][0];
+		viewAngles[1] = g_humanViewAngles[client][1];
+		viewAngles[2] = 0.0;
+	}
+	else
+	{
+		GetClientEyeAngles(client, viewAngles);
+	}
+
+	GetAngleVectors(viewAngles, aimForward, NULL_VECTOR, NULL_VECTOR);
+	NormalizeVector(aimForward, aimForward);
+
+	float dot = GetVectorDotProduct(direction, aimForward);
+	if (dot > 1.0)
+	{
+		dot = 1.0;
+	}
+	else if (dot < -1.0)
+	{
+		dot = -1.0;
+	}
+	float angle = RadToDeg(ArcCosine(dot));
+	return angle <= fieldOfView * 0.5;
+}
+
+bool CanHumanAwarenessSee(int client, int target, bool currentTarget = false)
+{
+	if (!IsHumanAwarenessEnemy(client, target))
+	{
+		return false;
+	}
+
+	float clientPos[3];
+	float targetPos[3];
+	GetClientEyePosition(client, clientPos);
+	GetClientEyePosition(target, targetPos);
+
+	if (!IsPointVisible(clientPos, targetPos))
+	{
+		return false;
+	}
+
+	float distance = GetVectorDistance(clientPos, targetPos);
+	float fieldOfView = currentTarget ? 205.0 : 155.0;
+	if (distance < 275.0)
+	{
+		fieldOfView = currentTarget ? 320.0 : 250.0;
+	}
+
+	return IsTargetInsideHumanFov(client, target, fieldOfView);
+}
+
+int FindBestHumanAwarenessEnemy(int client)
+{
+	float clientPos[3];
+	GetClientEyePosition(client, clientPos);
+
+	float bestScore = -1.0;
+	int bestTarget = -1;
+
+	for (int target = 1; target <= MaxClients; target++)
+	{
+		if (!IsHumanAwarenessEnemy(client, target) || !CanHumanAwarenessSee(client, target, target == g_awarenessTarget[client]))
+		{
+			continue;
+		}
+
+		float targetPos[3];
+		GetClientEyePosition(target, targetPos);
+		float score = GetVectorDistance(clientPos, targetPos);
+
+		// Prefer sticking with the current threat instead of switching every tick.
+		if (target == g_awarenessTarget[client])
+		{
+			score -= 325.0;
+		}
+
+		// Attackers are visually salient and should win close comparisons.
+		if ((GetClientButtons(target) & IN_ATTACK) != 0)
+		{
+			score -= 125.0;
+		}
+
+		if (bestTarget == -1 || score < bestScore)
+		{
+			bestScore = score;
+			bestTarget = target;
+		}
+	}
+
+	return bestTarget;
+}
+
+int UpdateHumanAwareness(int client)
+{
+	if (g_humanAwarenessEnable == null || g_humanAwarenessEnable.IntValue == 0)
+	{
+		float clientEyes[3];
+		GetClientEyePosition(client, clientEyes);
+		return Client_GetClosest(clientEyes, client);
+	}
+
+	float now = GetGameTime();
+	int currentTarget = g_awarenessTarget[client];
+	bool currentVisible = CanHumanAwarenessSee(client, currentTarget, true);
+	g_awarenessTargetVisible[client] = currentVisible;
+
+	if (currentVisible)
+	{
+		RememberAwarenessTarget(client, currentTarget);
+	}
+	else if (currentTarget != -1 && (!IsHumanAwarenessEnemy(client, currentTarget) || now >= g_awarenessMemoryUntil[client]))
+	{
+		g_awarenessTarget[client] = -1;
+		g_awarenessTargetLockUntil[client] = 0.0;
+		currentTarget = -1;
+	}
+
+	if (now >= g_awarenessNextScanAt[client])
+	{
+		g_awarenessCachedCandidate[client] = FindBestHumanAwarenessEnemy(client);
+		g_awarenessNextScanAt[client] = now + GetRandomFloat(0.08, 0.14);
+	}
+
+	int candidate = g_awarenessCachedCandidate[client];
+
+	// Once a reaction has started, keep processing that same visual stimulus
+	// instead of restarting the delay whenever another enemy crosses the screen.
+	int pendingTarget = g_awarenessPendingTarget[client];
+	if (pendingTarget != -1 && now < g_awarenessReactionUntil[client] && CanHumanAwarenessSee(client, pendingTarget, pendingTarget == currentTarget))
+	{
+		candidate = pendingTarget;
+	}
+
+	if (candidate != -1 && candidate != currentTarget)
+	{
+		bool canSwitch = currentTarget == -1 || !currentVisible || now >= g_awarenessTargetLockUntil[client];
+		if (canSwitch)
+		{
+			BeginAwarenessReaction(client, candidate);
+			if (now >= g_awarenessReactionUntil[client])
+			{
+				g_awarenessTarget[client] = candidate;
+				g_awarenessPendingTarget[client] = -1;
+				g_awarenessTargetVisible[client] = true;
+				g_awarenessTargetLockUntil[client] = now + GetAwarenessTargetLockDuration(client);
+				RememberAwarenessTarget(client, candidate);
+				currentTarget = candidate;
+				currentVisible = true;
+			}
+		}
+	}
+	else if (candidate == currentTarget && currentTarget != -1 && now >= g_awarenessReactionUntil[client])
+	{
+		g_awarenessPendingTarget[client] = -1;
+	}
+	else if (candidate == -1 && g_awarenessPendingTarget[client] != -1
+		&& (now >= g_awarenessReactionUntil[client] || !IsHumanAwarenessEnemy(client, g_awarenessPendingTarget[client])))
+	{
+		g_awarenessPendingTarget[client] = -1;
+		g_awarenessReactionUntil[client] = 0.0;
+	}
+
+	// Class logic only receives a target once it has been reacted to and is still
+	// visibly confirmed. Memory is used for looking/searching, not wall tracking.
+	bool reactionComplete = g_awarenessPendingTarget[client] != currentTarget || now >= g_awarenessReactionUntil[client];
+	if (currentTarget != -1 && currentVisible && reactionComplete)
+	{
+		return currentTarget;
+	}
+
+	return -1;
+}
+
+float GetHumanTurnSpeed(int client, bool reacting, bool fighting, bool remembering)
+{
+	float speed;
+	int difficulty = g_botDifficulty == null ? 1 : g_botDifficulty.IntValue;
+
+	switch (difficulty)
+	{
+		case 0: speed = 250.0;
+		case 1: speed = 360.0;
+		case 2: speed = 500.0;
+		case 3: speed = 680.0;
+		default: speed = 360.0;
+	}
+
+	if (reacting)
+	{
+		speed *= 0.42;
+	}
+	else if (remembering)
+	{
+		speed *= 0.58;
+	}
+	else if (!fighting)
+	{
+		speed *= 1.35;
+	}
+
+	return speed / g_humanSkillVariance[client];
+}
+
+float ApproachHumanAngle(float current, float target, float maximumStep)
+{
+	float difference = AngleNormalize(target - current);
+	if (difference > maximumStep)
+	{
+		difference = maximumStep;
+	}
+	else if (difference < -maximumStep)
+	{
+		difference = -maximumStep;
+	}
+
+	return AngleNormalize(current + difference);
+}
+
+void GetAnglesToAwarenessPosition(int client, const float position[3], float output[3])
+{
+	float eyePos[3];
+	float direction[3];
+	GetClientEyePosition(client, eyePos);
+	MakeVectorFromPoints(eyePos, position, direction);
+	GetVectorAngles(direction, output);
+	output[2] = 0.0;
+}
+
+void HumanizeAwarenessCommand(int client, int &buttons, float angles[3])
+{
+	if (g_humanAwarenessEnable == null || g_humanAwarenessEnable.IntValue == 0)
+	{
+		g_humanAnglesInitialized[client] = false;
+		return;
+	}
+
+	float now = GetGameTime();
+	if (!g_humanAnglesInitialized[client])
+	{
+		g_humanViewAngles[client][0] = angles[0];
+		g_humanViewAngles[client][1] = angles[1];
+		g_humanViewAngles[client][2] = 0.0;
+		g_humanAimLastUpdate[client] = now;
+		g_humanAnglesInitialized[client] = true;
+	}
+
+	float deltaTime = now - g_humanAimLastUpdate[client];
+	if (deltaTime <= 0.0 || deltaTime > 0.10)
+	{
+		deltaTime = 0.015;
+	}
+	g_humanAimLastUpdate[client] = now;
+
+	bool fighting = g_awarenessTarget[client] != -1 && g_awarenessTargetVisible[client];
+	bool remembering = !fighting && g_awarenessTarget[client] != -1 && now < g_awarenessMemoryUntil[client];
+
+	float desiredAngles[3];
+	desiredAngles[0] = angles[0];
+	desiredAngles[1] = angles[1];
+	desiredAngles[2] = 0.0;
+
+	// The stock bot brain can decide to shoot and rotate toward something outside
+	// this layer's field of view in the same command. Treat a large attacking snap
+	// as an unconfirmed stimulus so it still has to turn and react before firing.
+	TFClassType class = TF2_GetPlayerClass(client);
+	float rawYawChange = FloatAbs(AngleNormalize(desiredAngles[1] - g_humanViewAngles[client][1]));
+	float rawPitchChange = FloatAbs(AngleNormalize(desiredAngles[0] - g_humanViewAngles[client][0]));
+	if (!fighting && g_awarenessPendingTarget[client] == -1
+		&& class != TFClass_Medic && class != TFClass_Engineer
+		&& (buttons & IN_ATTACK) != 0 && (rawYawChange > 24.0 || rawPitchChange > 18.0)
+		&& now >= g_humanAimSnapReactionUntil[client])
+	{
+		float snapDelay = GetRandomFloat(g_humanReactionMin.FloatValue, g_humanReactionMax.FloatValue);
+		g_humanAimSnapReactionUntil[client] = now + (snapDelay * GetAwarenessDifficultyScale() * g_humanSkillVariance[client]);
+	}
+
+	bool reacting = (g_awarenessPendingTarget[client] != -1 && now < g_awarenessReactionUntil[client])
+		|| now < g_humanAimSnapReactionUntil[client];
+
+	if (remembering)
+	{
+		GetAnglesToAwarenessPosition(client, g_awarenessLastKnownPos[client], desiredAngles);
+	}
+
+	if (fighting)
+	{
+		// Keep the stock class-specific aim when it is plausibly aimed at the
+		// committed target (including projectile leading). Reject large retarget
+		// snaps until the awareness layer has accepted a switch.
+		float targetPos[3];
+		float directTargetAngles[3];
+		GetClientEyePosition(g_awarenessTarget[client], targetPos);
+		GetAnglesToAwarenessPosition(client, targetPos, directTargetAngles);
+
+		float targetYawDifference = FloatAbs(AngleNormalize(desiredAngles[1] - directTargetAngles[1]));
+		float targetPitchDifference = FloatAbs(AngleNormalize(desiredAngles[0] - directTargetAngles[0]));
+		if (targetYawDifference > 36.0 || targetPitchDifference > 28.0)
+		{
+			desiredAngles[0] = directTargetAngles[0];
+			desiredAngles[1] = directTargetAngles[1];
+		}
+		if (now >= g_humanAimOffsetUntil[client])
+		{
+			float errorScale = GetAwarenessDifficultyScale();
+			g_humanAimOffset[client][0] = GetRandomFloat(-0.65, 0.65) * errorScale;
+			g_humanAimOffset[client][1] = GetRandomFloat(-0.90, 0.90) * errorScale;
+			g_humanAimOffsetUntil[client] = now + GetRandomFloat(0.22, 0.48);
+		}
+
+		desiredAngles[0] += g_humanAimOffset[client][0];
+		desiredAngles[1] += g_humanAimOffset[client][1];
+	}
+
+	ClampAngle(desiredAngles);
+
+	float maximumStep = GetHumanTurnSpeed(client, reacting, fighting, remembering) * deltaTime;
+	g_humanViewAngles[client][0] = ApproachHumanAngle(g_humanViewAngles[client][0], desiredAngles[0], maximumStep);
+	g_humanViewAngles[client][1] = ApproachHumanAngle(g_humanViewAngles[client][1], desiredAngles[1], maximumStep);
+	g_humanViewAngles[client][2] = 0.0;
+
+	angles[0] = g_humanViewAngles[client][0];
+	angles[1] = g_humanViewAngles[client][1];
+	angles[2] = 0.0;
+
+	// Keep reaction delay from becoming harmless prefire. Support tools are exempt
+	// so Medics and Engineers do not drop heals or repairs when an enemy appears.
+	if (reacting && class != TFClass_Medic && class != TFClass_Engineer)
+	{
+		buttons &= ~IN_ATTACK;
+	}
 }
 
 stock float AngleNormalize(float angle)
@@ -2052,10 +2642,25 @@ stock bool IsWeaponSlotActive(int iClient, int iSlot)
 
 stock void ClampAngle(float fAngles[3])
 {
-	while(fAngles[0] > 89.0)  fAngles[0]-=360.0;
-	while(fAngles[0] < -89.0) fAngles[0]+=360.0;
-	while(fAngles[1] > 180.0) fAngles[1]-=360.0;
-	while(fAngles[1] <-180.0) fAngles[1]+=360.0;
+	if (fAngles[0] > 89.0)
+	{
+		fAngles[0] = 89.0;
+	}
+	else if (fAngles[0] < -89.0)
+	{
+		fAngles[0] = -89.0;
+	}
+
+	while (fAngles[1] > 180.0)
+	{
+		fAngles[1] -= 360.0;
+	}
+	while (fAngles[1] < -180.0)
+	{
+		fAngles[1] += 360.0;
+	}
+
+	fAngles[2] = 0.0;
 }
 
 stock bool IsPointVisible(const float start[3], const float end[3])
@@ -2432,7 +3037,7 @@ public Action ShortTimer(Handle timer)
 
 stock bool IsValidClient(int client) 
 {
-	if(!(1 <= client <= MaxClients) || !IsClientInGame(client) || client < 0) 
+	if(client < 1 || client > MaxClients || !IsClientInGame(client))
 		return false; 
 	return true; 
 }

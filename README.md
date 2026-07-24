@@ -29,3 +29,7 @@ See `POLISH_PATCH_NOTES.txt` and `POLISH_PATCH.diff` for exact details.
 ## Building
 
 Compile the `.sp` files against the matching SourceMod and extension include set. Precompiled `.smx` plugins and bundled third-party Stripper `.dll` files are intentionally excluded from source control.
+
+## Human-awareness development
+
+The first shared humanization pass lives on `feature/human-awareness-v1`. It adds reaction delay, target commitment, last-known-position memory, difficulty-scaled turning, and subtle aim variance underneath the existing class logic. See [`docs/HUMAN_AWARENESS_V1.md`](docs/HUMAN_AWARENESS_V1.md) for behavior and tuning ConVars.
