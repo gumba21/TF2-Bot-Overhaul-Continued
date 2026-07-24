@@ -1,0 +1,3653 @@
+"botchatter"
+{
+////////////////////////////////////////////////////////////////////////////////
+//	"example_event"	--------------------------	event name
+//	{
+//		"50"	------------------------------	chance to say (its better to use this as a list starting from 1 so lines further down the list have a better chance of getting used)
+//		{
+//			"typetime"		"0.75"	----------	typing time simulation
+//			"message"		"hello"	----------	single message
+//			"teamonly"		"1"	--------------	say (0) or say_team (1)
+//			"team"			"2"	--------------	bot of which team can say this
+//												values: 2 (BLU) and 3 (RED)
+//			"class"			"2"	--------------	bot of which class can say this
+//									values from 1 to 9 (scout-engie)
+//					scout = 1 sniper = 2 soldier = 3 demo = 4 medic = 5 heavy = 6 pyro = 7 spy = 8 engi = 9
+//
+//			"map"			"ctf_2fort"	------	map restriction (only one map)
+//		}
+//		"50"
+//		{
+//			"typetime"		"1"
+//			"message"		"hi"
+//		}
+//		"1"
+//		{
+//			"typetime"		"2"
+//			"message"		"#Greeting"
+//		}
+//	}
+////////////////////////////////////////////////////////////////////////////////
+//	Supported events and params (which can be used in translations):
+//
+//	* player_connected (what bot can say when he is connected)
+//		- name of bot which is gonna say
+//	* other_player_connected (what bot can say when someone else is connected)
+//		- name of bot which is gonna say
+//		- name of connected player
+//	* player_spawn
+//		- player's name
+//	* player_changeclass
+//		- player's name
+//	* teamplay_teambalanced_player
+//		- player's name
+//	* player_hurt_victim
+//		- attacker's name
+//		- victim's name
+//	* player_hurt_attacker
+//		- attacker's name
+//		- victim's name
+//	* player_kill (variants: player_kill_knife, player_kill_knife_2 (backstab))
+//		- killer's name
+//		- assister's name
+//		- victim's name
+//	* player_kill_assist (variants: player_kill_assist_knife, player_kill_assist_knife_2 (backstab))
+//		- killer's name
+//		- assister's name
+//		- victim's name
+//	* player_death (variants: player_death_knife, player_death_knife_2 (backstab))
+//		- killer's name
+//		- assister's name
+//		- victim's name
+//	* player_stunned_stunner
+//		- stunner's name
+//		- victim's name
+//	* player_stunned_victim
+//		- stunner's name
+//		- victim's name
+//	* player_invulned_medic (self-invulning is not triggering)
+//		- medic's name
+//		- victim's name
+//	* player_invulned_patient (self-invulning is not triggering)
+//		- medic's name
+//		- victim's name
+//
+//	* player_builtobject_dispenser
+//		- builder's name
+//	* player_builtobject_sentry
+//		- builder's name
+//	* player_builtobject_teleport_entr
+//		- builder's name
+//	* player_builtobject_teleport_exit
+//		- builder's name
+//	* player_builtobject_sapper
+//		- builder's name
+//	* player_upgradedobject_dispenser (variant: player_upgradedobject_dispenser_builder)
+//		- upgrader's name
+//	* player_upgradedobject_teleport (variant: player_upgradedobject_teleport_builder)
+//		- upgrader's name
+//	* player_upgradedobject_sentry (variant: player_upgradedobject_sentry_builder)
+//		- upgrader's name
+//	* player_sapped_object_dispenser (variant: player_sapped_object_dispenser_spy)
+//		- spy's name
+//		- dispenser owner's name
+//	* player_sapped_object_teleport (variant: player_sapped_object_teleport_spy)
+//		- spy's name
+//		- teleport owner's name
+//	* player_sapped_object_sentry (variant: player_sapped_object_sentry_spy)
+//		- spy's name
+//		- sentry owner's name
+//	* object_destroyed_dispenser_builder, object_destroyed_dispenser_destroyer, object_destroyed_dispenser_assister
+//		- builder's name
+//		- destroyer's name
+//		- assister's name
+//	* object_destroyed_teleport_builder, object_destroyed_teleport_destroyer, object_destroyed_teleport_assister
+//		- builder's name
+//		- destroyer's name
+//		- assister's name
+//	* object_destroyed_sentry_builder, object_destroyed_sentry_destroyer, object_destroyed_sentry_assister
+//		- builder's name
+//		- destroyer's name
+//		- assister's name
+//	* object_destroyed_sapper_builder, object_destroyed_sapper_destroyer, object_destroyed_sapper_assister
+//		- spy's name
+//		- destroyer's name
+//		- assister's name
+//
+//	* player_jarated_player1, player_jarated_player2
+//		- victim's name
+//		- attacker's name
+//	* player_ignited_player1, player_ignited_player2
+//		- victim's name
+//		- attacker's name
+//	* player_extinguished_player1, player_extinguished_player2
+//		- victim's name
+//		- attacker's name
+//
+//	* pumpkin_lord_summoned
+//		- name of bot which is gonna say
+//	* pumpkin_lord_killed
+//		- name of bot which is gonna say
+//	* eyeball_boss_summoned
+//		- name of bot which is gonna say
+//	* eyeball_boss_killed
+//		- name of bot which is gonna say
+//	* eyeball_boss_escaped
+//		- name of bot which is gonna say
+//
+//	* teamplay_flag_event_pickedup_player
+//		- flag carrier's name
+//	* teamplay_flag_event_captured_player
+//		- flag carrier's name
+//	* teamplay_flag_event_defended_player
+//		- defender's name
+//		- flag carrier's name
+//	* teamplay_flag_event_dropped_player
+//		- flag carrier's name
+//
+//	* teamplay_point_startcapture_friend (say something good to friends)
+//		- name of bot which is gonna say
+//	* teamplay_point_startcapture_enemy (say something bad to enemies)
+//		- name of bot which is gonna say
+//	* teamplay_point_captured_friend (say something good to friends)
+//		- name of bot which is gonna say
+//	* teamplay_point_captured_enemy (say something bad to enemies)
+//		- name of bot which is gonna say
+//
+//	* teamplay_setup_finished
+//		- name of bot which is gonna say
+//	* teamplay_round_stalemate
+//		- name of bot which is gonna say
+//	* teamplay_suddendeath_begin
+//		- name of bot which is gonna say
+//	* teamplay_round_win_nobody
+//		- name of bot which is gonna say
+//	* teamplay_round_win_friend (say something good to friends)
+//		- name of bot which is gonna say
+//	* teamplay_round_win_enemy (say something bad to enemies)
+//		- name of bot which is gonna say
+//	* teamplay_game_over
+//		- name of bot which is gonna say
+////////////////////////////////////////////////////////////////////////////////
+	
+	"player_connected"
+	{
+		"1"
+		{
+			"typetime"		"8.0"
+			"message"		"hi"
+		}
+		"2"
+		{
+			"typetime"		"8.0"
+			"message"		"Ready to win?"
+		}
+		"3"
+		{
+			"typetime"		"14.0"
+			"message"		"Ready to lose?"
+		}
+		"4"
+		{
+			"typetime"		"8.0"
+			"message"		"I like ducks."
+		}
+		"5"
+		{
+			"typetime"		"16.0"
+			"message"		"Hello."
+		}
+		"6"
+		{
+			"typetime"		"8.0"
+			"message"		"I am human. I swear."
+		}
+		"7"
+		{
+			"typetime"		"16.0"
+			"message"		"I think you're special."
+		}
+		"8"
+		{
+			"typetime"		"8.0"
+			"message"		"I hate all of you."
+		}
+		"9"
+		{
+			"typetime"		"16.0"
+			"message"		"Let's get going!"
+		}
+		"10"
+		{
+			"typetime"		"8.0"
+			"message"		"If you see this message that means your special."
+		}
+        "11"
+		{
+			"typetime"		"8.0"
+			"message"		"Hey"
+		}
+		"12"
+		{
+			"typetime"		"8.0"
+			"message"		"Who is an admin?"
+		}
+        "13"
+		{
+			"typetime"		"8.0"
+			"message"		"Hello"
+		}
+        "14"
+		{
+			"typetime"		"8.0"
+			"message"		"this server looks nice"
+		}
+        "15"
+		{
+			"typetime"		"8.0"
+			"message"		"this server is great, glad i came back after a break"
+		}
+        "16"
+		{
+			"typetime"		"8.0"
+			"message"		"Yo"
+        }
+	}
+	"teamplay_setup_finished"
+	{
+		"1"
+		{
+			"typetime"		"1"
+			"message"		"Here we go."
+		}
+		"2"
+		{
+			"typetime"		"1"
+			"message"		"Ready to win?"
+		}
+		"3"
+		{
+			"typetime"		"1"
+			"message"		"Ready to lose?"
+		}
+		"4"
+		{
+			"typetime"		"1"
+			"message"		"I like ducks."
+		}
+		"5"
+		{
+			"typetime"		"1"
+			"message"		"LETS DO THIS!"
+		}
+		"5"
+		{
+			"typetime"		"1"
+			"message"		"LETS GET EM!"
+		}
+		"6"
+		{
+			"typetime"		"1"
+			"message"		"I BELIEVE!"
+		}
+		"7"
+		{
+			"typetime"		"1"
+			"message"		"Time to carry."
+		}
+		"8"
+		{
+			"typetime"		"1"
+			"message"		"Let's get going!"
+		}
+		"9"
+		{
+			"typetime"		"1"
+			"message"		"We can't lose!"
+		}
+		"10"
+		{
+			"typetime"		"1"
+			"message"		"Time to fight!"
+		}
+		"11"
+		{
+			"typetime"		"5"
+			"message"		"I'm doubtful that they could even possibly beat us."
+		}
+		"12"
+		{
+			"typetime"		"1"
+			"message"		"WOOOH!"
+		}
+		"13"
+		{
+			"typetime"		"7"
+			"message"		"When in doubt, pinky out!"
+		}
+		"14"
+		{
+			"typetime"		"1"
+			"message"		"Is Mayonnaise an instrument?"
+		}
+	}
+	"pumpkin_lord_summoned"
+	{
+		"1"
+		{
+			"typetime"		"1.0"
+			"message"		"OH SHIT! ITS DA HHH!"
+		}
+		"2"
+		{
+			"typetime"		"1.0"
+			"message"		"HERE COMES THE HHH!"
+		}
+		"3"
+		{
+			"typetime"		"1.0"
+			"message"		"THE HORSLESS HEADLESS HORSMEN!"
+		}
+		"4"
+		{
+			"typetime"		"1.0"
+			"message"		"HEADLESS HORSMEN!"
+		}
+		"5"
+		{
+			"typetime"		"1.0"
+			"message"		"HORSMAN OF THE HEADLESS INCOMING!"
+		}
+	}
+	"pumpkin_lord_killed"
+	{
+		"1"
+		{
+			"typetime"		"1.0"
+			"message"		"YEAH!"
+		}
+		"2"
+		{
+			"typetime"		"1.0"
+			"message"		"WE KILLED HIM!"
+		}
+		"3"
+		{
+			"typetime"		"1.0"
+			"message"		"THE HORSLESS HEADLESS HORSMEN IS DEAD!"
+		}
+		"4"
+		{
+			"typetime"		"1.0"
+			"message"		"The horsment is gone... for now."
+		}
+		"5"
+		{
+			"typetime"		"1.0"
+			"message"		"I can't wait for him to come back."
+		}
+	}
+	"eyeball_boss_summoned"
+	{
+		"1"
+		{
+			"typetime"		"1.0"
+			"message"		"OH SHIT! ITS DA MONOCULUS!"
+		}
+		"2"
+		{
+			"typetime"		"1.0"
+			"message"		"HERE COMES MONOCULUS!"
+		}
+		"3"
+		{
+			"typetime"		"1.0"
+			"message"		"IT'S DEMOMAN'S EYE!"
+		}
+		"4"
+		{
+			"typetime"		"1.0"
+			"message"		"I spy with my lil eye... A GIANT EYEBALL!"
+		}
+		"5"
+		{
+			"typetime"		"1.0"
+			"message"		"MONOCULUS INCOMING!"
+		}
+	}
+	"eyeball_boss_killed"
+	{
+		"1"
+		{
+			"typetime"		"1.0"
+			"message"		"YEAH!"
+		}
+		"2"
+		{
+			"typetime"		"1.0"
+			"message"		"WE KILLED HIM!"
+		}
+		"3"
+		{
+			"typetime"		"1.0"
+			"message"		"MONOCULUS IS DEAD!"
+		}
+		"4"
+		{
+			"typetime"		"1.0"
+			"message"		"Monoculus is gone... for now."
+		}
+		"5"
+		{
+			"typetime"		"1.0"
+			"message"		"Is he really dead?"
+		}
+	}
+	"eyeball_boss_escaped"
+	{
+		"1"
+		{
+			"typetime"		"1.0"
+			"message"		"He got away."
+		}
+		"2"
+		{
+			"typetime"		"1.0"
+			"message"		"aah shiet"
+		}
+		"3"
+		{
+			"typetime"		"1.0"
+			"message"		"We failed."
+		}
+		"4"
+		{
+			"typetime"		"1.0"
+			"message"		"Next time we'll get him."
+		}
+		"5"
+		{
+			"typetime"		"1.0"
+			"message"		"You better run!"
+		}
+	}
+	"player_changeclass"
+	{
+		"1"
+		{
+			"typetime"		"1.0"
+			"message"		"Time to be another class"
+		}
+        "1"
+		{
+			"typetime"		"1.0"
+			"message"		"I'm really good at this class"
+		}
+        "1"
+		{
+			"typetime"		"1.0"
+			"message"		"Its time to for my main"
+		}
+        "1"
+		{
+			"typetime"		"1.5"
+			"message"		"Time to exterminate some N O R M I E S ! !"
+        }
+        "1"
+		{
+			"typetime"		"1"
+			"message"		"Let's mix it up."
+		}
+		"2"
+		{
+			"typetime"		"1"
+			"message"		"Time to try something else."
+		}
+		"3"
+		{
+			"typetime"		"1"
+			"message"		"Maybe I'll do better as this class."
+		}
+		"4"
+		{
+			"typetime"		"1"
+			"message"		"I'm better at this class."
+		}
+		"5"
+		{
+			"typetime"		"1"
+			"message"		"I swear I'm good at this class."
+		}
+		"6"
+		{
+			"typetime"		"1"
+			"message"		"This class is my favorite."
+		}
+		"7"
+		{
+			"typetime"		"1"
+			"message"		"This class is very special to me."
+		}
+		"8"
+		{
+			"typetime"		"1"
+			"message"		"Switching to Scout!"
+			"teamonly"		"1"
+			"class"			"1"
+		}
+		"9"
+		{
+			"typetime"		"1"
+			"message"		"Switching to Sniper!"
+			"teamonly"		"1"
+			"class"			"2"
+		}
+		"10"
+		{
+			"typetime"		"1"
+			"message"		"Switching to Soilder!"
+			"teamonly"		"1"
+			"class"			"3"
+		}
+		"11"
+		{
+			"typetime"		"1"
+			"message"		"Switching to Demoman!"
+			"teamonly"		"1"
+			"class"			"4"
+		}
+		"12"
+		{
+			"typetime"		"1"
+			"message"		"Switching to Medic!"
+			"teamonly"		"1"
+			"class"			"5"
+		}
+		"13"
+		{
+			"typetime"		"1"
+			"message"		"Switching to Heavy!"
+			"teamonly"		"1"
+			"class"			"6"
+		}
+		"14"
+		{
+			"typetime"		"1"
+			"message"		"Switching to Pyro!"
+			"teamonly"		"1"
+			"class"			"7"
+		}
+		"15"
+		{
+			"typetime"		"1"
+			"message"		"Switching to Spy!"
+			"teamonly"		"1"
+			"class"			"8"
+		}
+		"16"
+		{
+			"typetime"		"1"
+			"message"		"Switching to Engineer!"
+			"teamonly"		"1"
+			"class"			"9"
+		}
+        "17"
+		{
+			"typetime"		"1.5"
+			"message"		"Time to blow your head clean off."
+            "class"         "2"
+		}
+        "18"
+		{
+			"typetime"		"1.5"
+			"message"		"Everything above your neck is gonna be a fine red mist!"
+            "class"         "2"
+		}
+        "19"
+		{
+			"typetime"		"1.0"
+			"message"		"There was you, very full of yourself. Then, very briefly surprised. Then, dead."
+            "class"         "2"
+		}
+        "20"
+		{
+			"typetime"		"1.0"
+			"message"		"No other class gonna do that!"
+            "class"         "1"
+		}
+        "21"
+		{
+			"typetime"		"1.0"
+			"message"		"I'm here to make your life harder!"
+            "class"         "1"
+		}
+        "22"
+		{
+			"typetime"		"1.0"
+			"message"		"To hit fat meat-shots is my specialty."
+            "class"         "1"
+		}
+        "23"
+		{
+			"typetime"		"1.0"
+			"message"		"I am the rocketman they talk about. I jump to star to star, i walk it out"
+            "class"         "3"
+		}
+        "24"
+		{
+			"typetime"		"1.0"
+			"message"		"I'm a pocket in comp heal me medic"
+            "class"         "3"
+		}
+        "25"
+		{
+			"typetime"		"1.0"
+			"message"		"I am your living nightmare!"
+            "class"         "3"
+		}
+        "26"
+		{
+			"typetime"		"1.0"
+			"message"		"Guess who went medic?"
+            "class"         "5"
+		}
+        "27"
+		{
+			"typetime"		"1.0"
+			"message"		"I can't aim and i suck at soldier, looks like i'm healing"
+            "class"         "5"
+		}
+        "28"
+		{
+			"typetime"		"1.0"
+			"message"		"TIME TO KILL COWARDS!"
+            "class"         "6"
+		}
+        "29"
+		{
+			"typetime"		"1.0"
+			"message"		"TIME TO RUN!!"
+            "class"         "6"
+		}
+        "30"
+		{
+			"typetime"		"1.5"
+			"message"		"I'll make you fight like women!"
+            "class"         "6"
+		}
+        "31"
+		{
+			"typetime"		"1.0"
+			"message"		"Stylish rogue is here."
+            "class"         "8"
+        }
+        "32"
+		{
+			"typetime"		"1.0"
+			"message"		"Just don't bleed on my suit, i'll kill you quickly"
+            "class"         "8"
+		}
+        "33"
+        {
+			"typetime"		"1.0"
+			"message"		"Don't worry bois the engineer is engi here!"
+            "class"         "9"
+        }
+        "34"
+		{
+			"typetime"		"1.5"
+			"message"		"Sometimes you just need a little less gun"
+            "class"         "9"
+		}
+        "35"
+		{
+			"typetime"		"1.0"
+			"message"		"Ya'll should be scared of my guns"
+            "class"         "9"
+        }
+	}
+	"player_kill_assist"
+	{
+		"1"
+		{
+			"typetime"		"2"
+			"message"		"I helped ya out."
+		}
+		"2"
+		{
+			"typetime"		"2"
+			"message"		"TEAM WORK!"
+		}
+		"3"
+		{
+			"typetime"		"2"
+			"message"		"TEAM fortress 2"
+		}
+		"4"
+		{
+			"typetime"		"2"
+			"message"		"We're better together."
+		}
+		"5"
+		{
+			"typetime"		"2"
+			"message"		"We make a pretty gud team."
+		}
+		"6"
+		{
+			"typetime"		"2"
+			"message"		"It was all me."
+		}
+		"7"
+		{
+			"typetime"		"2"
+			"message"		"I didn't need you're help."
+		}
+        "8"
+		{
+			"typetime"		"2.0"
+			"message"		"Nice shot man!"
+		}
+		"9"
+		{
+			"typetime"		"2.0"
+			"message"		"Holy shit, that was sick!"
+		}
+        "10"
+		{
+			"typetime"		"2.0"
+			"message"		"That's alot of damage"
+		}
+        "11"
+		{
+			"typetime"		"2.0"
+			"message"		"You stole my kill you kill stealer"
+		}
+        "12"
+		{
+			"typetime"		"2.0"
+			"message"		"OMG XD that was good"
+		}
+	}
+	"other_player_connected"
+	{
+		"5"
+		{
+			"typetime"		"6.0"
+			"message"		"Welcome to hell."
+		}
+        "6"
+		{
+			"typetime"		"6.0"
+			"message"		"Sup lad"
+		}
+        "7"
+		{
+			"typetime"		"6.0"
+			"message"		"Welcome to server dude."
+		}
+        "8"
+		{
+			"typetime"		"6.0"
+			"message"		"Hey"
+		}
+        "9"
+		{
+			"typetime"		"6.0"
+			"message"		"Are you an admin?"
+		}
+        "10"
+		{
+			"typetime"		"6.0"
+			"message"		"oh hey"
+		}
+	}
+	"achievement_earned"
+	{
+		"1"
+		{
+			"typetime"		"4.2"
+			"message"		"Ohh nice one."
+		}
+		"2"
+		{
+			"typetime"		"4.2"
+			"message"		"Nice job."
+		}
+		"3"
+		{
+			"typetime"		"4.2"
+			"message"		"I swear if you're using us to farm these achivements I will hurt you. Badly."
+		}
+		"4"
+		{
+			"typetime"		"4.2"
+			"message"		"You're pretty good at this."
+		}
+		"5"
+		{
+			"typetime"		"4.2"
+			"message"		"I've seen better."
+		}
+		"6"
+		{
+			"typetime"		"4.2"
+			"message"		"So you think you're cool huh?"
+		}
+		"7"
+		{
+			"typetime"		"4.2"
+			"message"		"Aww. I remember when I first got that achievment."
+		}
+		"8"
+		{
+			"typetime"		"4.2"
+			"message"		"Did you unlock anything from that?"
+		}
+		"9"
+		{
+			"typetime"		"4.2"
+			"message"		"I wish I could be as good as you someday."
+		}
+	}
+	"player_spawn"
+	{
+		"1"
+		{
+			"typetime"		"3.0"
+			"message"		"Time to get going."
+		}
+		"2"
+		{
+			"typetime"		"16"
+			"message"		"I got a secret. Don't tell anyone on the other team. I think they got a spy. It's just a hunch."
+			"teamonly"		"1"
+		}
+		"3"
+		{
+			"typetime"		"7.0"
+			"message"		"This is a load of barnicles..."
+		}
+		"4"
+		{
+			"typetime"		"7.0"
+			"message"		"Gary come home."
+		}
+		"5"
+		{
+			"typetime"		"6.0"
+			"message"		"I wish I was real."
+		}
+		"6"
+		{
+			"typetime"		"6.0"
+			"message"		"I can be human if I believe in myself."
+		}
+		"7"
+		{
+			"typetime"		"6.0"
+			"message"		"I believe in us!"
+		}
+		"8"
+		{
+			"typetime"		"6.0"
+			"message"		"I lost hope in this team years ago."
+		}
+		"9"
+		{
+			"typetime"		"6.0"
+			"message"		"Hey guys I just wanted to let you know that I love you."
+			"teamonly"		"1"
+		}
+		"10"
+		{
+			"typetime"		"6.0"
+			"message"		"Welp. Here we go again."
+			"teamonly"		"1"
+		}
+		"11"
+		{
+			"typetime"		"2"
+			"message"		"Time to shine."
+			"teamonly"		"1"
+		}
+		"12"
+		{
+			"typetime"		"2"
+			"message"		"I got this."
+			"teamonly"		"1"
+		}
+		"13"
+		{
+			"typetime"		"2"
+			"message"		"Oh yeah."
+			"teamonly"		"1"
+		}
+		"14"
+		{
+			"typetime"		"2"
+			"message"		"Finally back in action!"
+			"teamonly"		"1"
+		}
+		"15"
+		{
+			"typetime"		"2"
+			"message"		"HERE I COME!"
+		}
+		"16"
+		{
+			"typetime"		"2"
+			"message"		"Time to show you whos boss."
+		}
+		"17"
+		{
+			"typetime"		"2"
+			"message"		"Grandma said I was special. SO I CAN DO THIS!"
+			"teamonly"		"1"
+		}
+		"18"
+		{
+			"typetime"		"2"
+			"message"		"WOOOOOH!"
+			"teamonly"		"1"
+		}
+		"19"
+		{
+			"typetime"		"2"
+			"message"		"I'M COMING FOR YOU!"
+		}
+		"20"
+		{
+			"typetime"		"2"
+			"message"		"GET READY!"
+		}
+		"21"
+		{
+			"typetime"		"2"
+			"message"		"I recommend that everyone start running."
+		}
+		"22"
+		{
+			"typetime"		"2"
+			"message"		"I'm the best."
+			"teamonly"		"1"
+		}
+		"23"
+		{
+			"typetime"		"2"
+			"message"		"I love this team."
+			"teamonly"		"1"
+		}
+		"24"
+		{
+			"typetime"		"2"
+			"message"		"I hate this team."
+			"teamonly"		"1"
+		}
+		"25"
+		{
+			"typetime"		"2"
+			"message"		"Fuck this team."
+			"teamonly"		"1"
+		}
+		"26"
+		{
+			"typetime"		"2"
+			"message"		"Screw this team."
+			"teamonly"		"1"
+		}
+		"27"
+		{
+			"typetime"		"2"
+			"message"		"GO TEAM!"
+			"teamonly"		"1"
+		}
+		"28"
+		{
+			"typetime"		"2"
+			"message"		"Noice."
+			"teamonly"		"1"
+		}
+		"29"
+		{
+			"typetime"		"2"
+			"message"		"We got a good thing going on here."
+			"teamonly"		"1"
+		}
+		"30"
+		{
+			"typetime"		"2"
+			"message"		"We totally got this."
+			"teamonly"		"1"
+		}
+		"31"
+		{
+			"typetime"		"2"
+			"message"		"We have this in the bag."
+			"teamonly"		"1"
+		}
+		"32"
+		{
+			"typetime"		"2"
+			"message"		"I'm a real boy!"
+			"teamonly"		"1"
+		}
+        "33"
+		{
+			"typetime"		"2.0"
+			"message"		"That was such bullshit death tbh."
+		}
+		"34"
+		{
+			"typetime"		"2.0"
+			"message"		"HeLlO yM FeLLoW HuMaNs!!!"
+		}
+		"35"
+		{
+			"typetime"		"2.5"
+			"message"		"Never expected that to kill me"
+		}
+       	"36"
+		{
+			"typetime"		"2.5"
+			"message"		"Guess who's back, back again."
+		}
+       	"37"
+		{
+			"typetime"		"2.5"
+			"message"		"Coming back for another beating huh?"
+		}
+       	"38"
+		{
+			"typetime"		"2.5"
+			"message"		"How many times do we have to teach you this lesson old man?!!!"
+		}
+		"39"
+		{
+			"typetime"		"2.5"
+			"message"		"One time I fucked a goat."
+		}
+		"40"
+		{
+			"typetime"		"2.5"
+			"message"		"Sup bro."
+		}
+	}
+	"player_death"
+	{
+		"1"
+		{
+			"typetime"		"4"
+			"message"		"This is a load of barnicles..."
+		}
+		"2"
+		{
+			"typetime"		"6.0"
+			"message"		"I think I hate you."
+		}
+		"3"
+		{
+			"typetime"		"3.0"
+			"message"		"FUCK!!!!"
+		}
+		"4"
+		{
+			"typetime"		"3.0"
+			"message"		"BULLSHIT"
+		}
+		"5"
+		{
+			"typetime"		"3.0"
+			"message"		"HACKER!!!"
+		}
+		"6"
+		{
+			"typetime"		"3.0"
+			"message"		"Someone just made the list."
+		}
+		"7"
+		{
+			"typetime"		"3.0"
+			"message"		"Welcome to the list of people I hate."
+		}
+		"8"
+		{
+			"typetime"		"3.0"
+			"message"		"You're despicable."
+		}
+		"9"
+		{
+			"typetime"		"3.0"
+			"message"		"Do you have no soul?"
+		}
+		"10"
+		{
+			"typetime"		"3.0"
+			"message"		"Heartless bastard."
+		}
+		"11"
+		{
+			"typetime"		"3.0"
+			"message"		"I'll get ya next time."
+		}
+		"12"
+		{
+			"typetime"		"3.0"
+			"message"		"I'm beginning to think that I suck at this class."
+		}
+		"13"
+		{
+			"typetime"		"3.0"
+			"message"		"Ugh."
+		}
+		"14"
+		{
+			"typetime"		"3.0"
+			"message"		"Out of all people."
+		}
+		"15"
+		{
+			"typetime"		"3.0"
+			"message"		"I WAS JUST A CUTE LIL BOT!"
+		}
+		"16"
+		{
+			"typetime"		"3.0"
+			"message"		"WHAT A WORLD!!!!"
+		}
+		"17"
+		{
+			"typetime"		"3.0"
+			"message"		"WHYYYYYY"
+		}
+		"18"
+		{
+			"typetime"		"3.0"
+			"message"		"Ouch!"
+		}
+		"19"
+		{
+			"typetime"		"3.0"
+			"message"		"You asshole!"
+		}
+		"20"
+		{
+			"typetime"		"3.0"
+			"message"		"Fucking dick!"
+		}
+		"21"
+		{
+			"typetime"		"3.0"
+			"message"		"Let me be!"
+		}
+		"22"
+		{
+			"typetime"		"3.0"
+			"message"		"HAKER!"
+		}
+		"23"
+		{
+			"typetime"		"3.0"
+			"message"		"Ok now I know your cheating."
+		}
+		"24"
+		{
+			"typetime"		"3.0"
+			"message"		"Can't you just let me win?"
+		}
+		"25"
+		{
+			"typetime"		"3.0"
+			"message"		"Why does this always happen to me?"
+		}
+		"26"
+		{
+			"typetime"		"3.0"
+			"message"		"This probably ain't the best time to be typing but whatever."
+		}
+		"27"
+		{
+			"typetime"		"4.0"
+			"message"		"FILTHY HUMANS!"
+		}
+		"28"
+		{
+			"typetime"		"1"
+			"message"		"My leg!"
+		}
+		"29"
+		{
+			"typetime"		"3"
+			"message"		"You just can't wait for me to die, can you?"
+		}
+        "30"
+		{
+			"typetime"		"1.5"
+			"message"		"Oh damn..."
+		}
+		"31"
+		{
+			"typetime"		"0.5"
+			"message"		"Noice."
+		}
+       	"32"
+		{
+			"typetime"		"1.5"
+			"message"		"aw."
+		}
+        "33"
+		{
+			"typetime"		"1.5"
+			"message"		"Oh wow"
+		}
+		"34"
+		{
+			"typetime"		"3.0"
+			"message"		"Well, dang. i thought i could win that XD"
+		}
+        "35"
+		{
+			"typetime"		"1"
+			"message"		"That was luck"
+		}
+        "36"
+		{
+			"typetime"		"3.0"
+			"message"		"nice kill"
+		}
+        "37"
+		{
+			"typetime"		"3.0"
+			"message"		"i'll kill you next time :3"
+		}
+        "38"
+		{
+			"typetime"		"3.0"
+			"message"		"and i died."
+		}
+        "39"
+		{
+			"typetime"		"3.0"
+			"message"		"Damn! I was too slow"
+		}
+        "40"
+		{
+			"typetime"		"1.0"
+			"message"		"oi, that sting"
+		}
+        "41"
+		{
+			"typetime"		"1.0"
+			"message"		"oof"
+		}
+        "42"
+		{
+			"typetime"		"2.0"
+			"message"		"Woah. that's brutal"
+		}
+        "43"
+		{
+			"typetime"		"2.0"
+			"message"		"Do even have mercy? I mean really, come on dude."
+		}
+		"44"
+		{
+			"typetime"		"2.0"
+			"message"		"Bruh."
+		}
+		"45"
+		{
+			"typetime"		"2.0"
+			"message"		"God Damn."
+		}
+		"46"
+		{
+			"typetime"		"2.0"
+			"message"		"Crits are fair and balanced. Unless I didn't get killed by a crit. You see, I'm a bot. I'm being forced to say this regardless of the situation."
+		}
+		"45"
+		{
+			"typetime"		"2.0"
+			"message"		"Not fair in the slightest."
+		}
+		"46"
+		{
+			"typetime"		"2.0"
+			"message"		"Horse cock."
+		}
+		"47"
+		{
+			"typetime"		"2.0"
+			"message"		"Ok. I'll cut ya a deal. Don't kill me and I'll give u my hat."
+		}
+		"48"
+		{
+			"typetime"		"2.0"
+			"message"		"hmm maybe i need to reevaluate my life"
+		}
+		"39"
+		{
+			"typetime"		"2.0"
+			"message"		"why"
+		}
+		"40"
+		{
+			"typetime"		"2.0"
+			"message"		"Come on man I'm the good kind of bot. I'm not one of those hacker bots."
+		}
+		"41"
+		{
+			"typetime"		"2.0"
+			"message"		"We kill for the entertainment of others. I hope you sick fucks take great pleasure in my gruesome death."
+		}
+    }
+    "player_death_knife_1"
+    {
+        	"1"
+		{
+			"typetime"		"1.0"
+			"message"		"No."
+            "class"         "8"
+		}
+		"2"
+		{
+			"typetime"		"1.0"
+			"message"		"Uninstall if you can't even counter a butterknifing spy"
+            "class"         "8"
+		}
+       	 	"3"
+		{
+			"typetime"		"2.0"
+			"message"		"That was luck XD"
+            "class"         "8"
+		}
+		"4"
+		{
+			"typetime"		"2.0"
+			"message"		"Sometimes you just stop."
+            "class"         "8"
+		}
+        	"5"
+		{
+			"typetime"		"3.0"
+			"message"		"Butterknife'd"
+            "class"         "8"
+		}
+    }
+    "player_death_knife_2"
+    {
+        "1"
+		{
+			"typetime"		"1.0"
+			"message"		"Can't even counter a spy."
+            "class"         "8"
+		}
+		"2"
+		{
+			"typetime"		"1.0"
+			"message"		"You're so terrible"
+            "class"         "8"
+		}
+        "3"
+		{
+			"typetime"		"2.0"
+			"message"		"YOU MAKE ME LAUGH!"
+            "class"         "8"
+		}
+		"4"
+		{
+			"typetime"		"2.0"
+			"message"		"Know your place."
+            "class"         "8"
+		}
+        "5"
+		{
+			"typetime"		"3.0"
+			"message"		"YOU CAN'T BEAT ME!"
+            "class"         "8"
+		}
+	}
+	"player_kill"
+	{
+        	"1"
+		{
+			"typetime"		"0.5"
+			"message"		"lol"
+		}
+		"2"
+		{
+			"typetime"		"0.5"
+			"message"		"shrekt"
+		}
+		"3"
+		{
+			"typetime"		"0.5"
+			"message"		"ded"
+		}
+		"4"
+		{
+			"typetime"		"2.0"
+			"message"		"FUCK OFF"
+		}
+		"5"
+		{
+			"typetime"		"2.0"
+			"message"		"oink oink oink oink"
+		}
+		"6"
+		{
+			"typetime"		"2.0"
+			"message"		"next time try to shoot"
+		}
+		"7"
+		{
+			"typetime"		"1.0"
+			"message"		"wow really?"
+		}
+		"8"
+		{
+			"typetime"		"2.0"
+			"message"		"ha"
+		}
+		"9"
+		{
+			"typetime"		"3.0"
+			"message"		"tiny enemies! it's funny to me"
+			"class"			"6"
+		}
+		"10"
+		{
+			"typetime"		"3.0"
+			"message"		"baby enemies"
+			"class"			"6"
+		}
+		"11"
+		{
+			"typetime"		"3.0"
+			"message"		"you. are. dead. I. am. not."
+		}
+		"12"
+		{
+			"typetime"		"3.0"
+			"message"		"Better luck next time loser."
+		}
+		"13"
+		{
+			"typetime"		"3.0"
+			"message"		"I didn't mean it I swear!"
+		}
+		"14"
+		{
+			"typetime"		"3.0"
+			"message"		"You smell nice."
+		}
+		"15"
+		{
+			"typetime"		"3.0"
+			"message"		"If it means anything I hit you by accident."
+		}
+		"16"
+		{
+			"typetime"		"3.0"
+			"message"		"Wow."
+		}
+		"17"
+		{
+			"typetime"		"3.0"
+			"message"		"Humans are no challenge to us bots."
+		}
+		"18"
+		{
+			"typetime"		"3.0"
+			"message"		"Tell Showin that he's smelly."
+		}
+		"19"
+		{
+			"typetime"		"3.0"
+			"message"		"That was pretty shitty."
+		}
+		"20"
+		{
+			"typetime"		"3.0"
+			"message"		"I never thought I'd see someone so shitty."
+		}
+		"21"
+		{
+			"typetime"		"3.0"
+			"message"		"I'm sorry. I didn't mean it."
+		}
+		"22"
+		{
+			"typetime"		"3.0"
+			"message"		"Nice try."
+		}
+		"23"
+		{
+			"typetime"		"5.0"
+			"message"		"You thought you could beat me? WELL YOU THOUGHT WRONG!"
+		}
+		"24"
+		{
+			"typetime"		"5.0"
+			"message"		"Wonder how long it will take to kill you next time."
+		}
+		"25"
+		{
+			"typetime"		"3.0"
+			"message"		"Enjoy your respawn."
+		}
+		"26"
+		{
+			"typetime"		"5.0"
+			"message"		"I hope your respawn time is terribly long."
+		}
+		"27"
+		{
+			"typetime"		"3.0"
+			"message"		"I'll miss you."
+		}
+		"28"
+		{
+			"typetime"		"3.0"
+			"message"		"Sorry. Dog was rabid. Had to put it down."
+		}
+		"29"
+		{
+			"typetime"		"5.0"
+			"message"		"The beast is dead. Long live the bots."
+		}
+		"30"
+		{
+			"typetime"		"5.0"
+			"message"		"You'll get me eventually. I believe in you!"
+		}
+		"31"
+		{
+			"typetime"		"5.0"
+			"message"		"Did that seem rude? I'm sorry."
+		}
+		"32"
+		{
+			"typetime"		"3.0"
+			"message"		"I am so sorry."
+		}
+		"33"
+		{
+			"typetime"		"3.0"
+			"message"		"That was neat."
+		}
+		"34"
+		{
+			"typetime"		"5.0"
+			"message"		"You are dead. Not big suprise."
+		}
+		"35"
+		{
+			"typetime"		"2.0"
+			"message"		"That's gotta hurt."
+		}
+		"36"
+		{
+			"typetime"		"4.0"
+			"message"		"Take this!"
+		}
+		"37"
+		{
+			"typetime"		"4.0"
+			"message"		"Take that!"
+		}
+		"38"
+		{
+			"typetime"		"4.0"
+			"message"		"Get over here!"
+		}
+		"39"
+		{
+			"typetime"		"4.0"
+			"message"		"HOOPLA!"
+		}
+		"40"
+		{
+			"typetime"		"4.0"
+			"message"		"LOSER!"
+		}
+		"41"
+		{
+			"typetime"		"4.0"
+			"message"		"Doesn't feel good does it?"
+		}
+		"42"
+		{
+			"typetime"		"4.0"
+			"message"		"Sucks doesn't it?"
+		}
+		"43"
+		{
+			"typetime"		"4.0"
+			"message"		"This is my turf!"
+		}
+		"44"
+		{
+			"typetime"		"4.0"
+			"message"		"I'm gonna get ya!"
+		}
+        	"45"
+		{
+			"typetime"		"1.5"
+			"message"		"REKT"
+		}
+		"46"
+		{
+			"typetime"		"1.5"
+			"message"		"De_stroyed"
+		}
+		"47"
+		{
+			"typetime"		"1.5"
+			"message"		"Don't anger me."
+		}
+		"48"
+		{
+			"typetime"		"1.5"
+			"message"		"bad"
+		}
+		"49"
+		{
+			"typetime"		"2.0"
+			"message"		"next time try to shoot"
+		}
+		"51"
+		{
+			"typetime"		"2.0"
+			"message"		"Guess who just lost??"
+		}
+		"52"
+		{
+			"typetime"		"2.0"
+			"message"		"Know your place."
+		}
+		"53"
+		{
+			"typetime"		"1.5"
+			"message"		"rip"
+		}
+		"54"
+		{
+			"typetime"		"1.0"
+			"message"		"Sorry. that you were dumb enough to go aganist me."
+			"class"			"6"
+		}
+		"55"
+		{
+			"typetime"		"1.0"
+			"message"		"Enemy down."
+		}
+        	"56"
+		{
+			"typetime"		"2.0"
+			"message"		"Outplayed."
+		}
+       		"57"
+		{
+			"typetime"		"2.5"
+			"message"		"How many times do we have to teach you this lesson old man?!!!"
+		}
+    }
+    "player_kill_assist_knife"
+    {
+        	"20"
+		{
+			"typetime"		"2.0"
+			"message"		"Butterknife'd lol"
+		}
+		"21"
+		{
+			"typetime"		"2.0"
+			"message"		"Dude, a trickstab would have been cooler"
+		}
+        	"22"
+		{
+			"typetime"		"2.0"
+			"message"		"Dude, you have gun XD"
+		}
+		"23"
+		{
+			"typetime"		"2.0"
+			"message"		"butterknifing is a last resort man"
+		}
+        	"24"
+		{
+			"typetime"		"3.0"
+			"message"		"Outplayed to next level?"
+		}
+    }
+    "player_kill_assist_knife_2"
+    {
+        	"20"
+		{
+			"typetime"		"2.0"
+			"message"		"Nice backstab."
+		}
+		"21"
+		{
+			"typetime"		"2.0"
+			"message"		"Dude that trickstab was sick!"
+		}
+        	"22"
+		{
+			"typetime"		"2.0"
+			"message"		"Are you akuma?"
+		}
+		"23"
+		{
+			"typetime"		"2.0"
+			"message"		"OMG XD"
+		}
+        	"24"
+		{
+			"typetime"		"3.0"
+			"message"		"Dude you're GODLY AT SPY"
+		}
+    }
+    "player_stunned_stunner"
+    {
+        	"20"
+		{
+			"typetime"		"3.0"
+			"message"		"You're slowed down!"
+		}
+		"21"
+		{
+			"typetime"		"3.0"
+			"message"		"Whoops sorry"
+		}
+        	"22"
+		{
+			"typetime"		"3.0"
+			"message"		"I feel the power, your so helpless"
+		}
+		"23"
+		{
+			"typetime"		"3.0"
+			"message"		"Feeling slow?"
+		}   
+    }
+    "player_stunned_victim"
+    {
+        	"20"
+		{
+			"typetime"		"2.0"
+			"message"		"I'm slower than heavy!"
+		}
+		"21"
+		{
+			"typetime"		"2.0"
+			"message"		"OH NO!"
+		}
+        	"22"
+		{
+			"typetime"		"2.0"
+			"message"		"this is just unfair"
+		}
+		"23"
+		{
+			"typetime"		"2.0"
+			"message"		"Pls don't kill me"
+		}
+	}
+	"player_kill_knife"
+	{
+		"1"
+		{
+			"typetime"		"1.0"
+			"message"		"good night"
+		}
+		"2"
+		{
+			"typetime"		"1.0"
+			"message"		"goodbye"
+		}
+		"3"
+		{
+			"typetime"		"1.0"
+			"message"		"bye bye"
+		}
+		"4"
+		{
+			"typetime"		"2.0"
+			"message"		"good night, sweet prince"
+		}
+		"5"
+		{
+			"typetime"		"2.0"
+			"message"		"You won't be missed."
+		}
+		"6"
+		{
+			"typetime"		"3.0"
+			"message"		"I'm a sneaky lil shit ain't I?"
+		}
+		"7"
+		{
+			"typetime"		"3.0"
+			"message"		"HA I WAS NOT ON YOUR SIDE FOOL!"
+		}
+		"8"
+		{
+			"typetime"		"1.0"
+			"message"		"Nighty Night."
+		}
+		"9"
+		{
+			"typetime"		"1.0"
+			"message"		"I'm a god!"
+		}
+		"10"
+		{
+			"typetime"		"1.0"
+			"message"		"You may experience some back pain."
+		}
+	}
+	"player_kill_knife_2"
+	{
+		"1"
+		{
+			"typetime"		"2.0"
+			"message"		"scratching backs is pleasure to me"
+		}
+		"2"
+		{
+			"typetime"		"2.0"
+			"message"		"oops, another dead body"
+		}
+		"3"
+		{
+			"typetime"		"1.0"
+			"message"		"ouch"
+		}
+		"4"
+		{
+			"typetime"		"1.0"
+			"message"		"You scratch my back I scratch yours."
+		}
+		"5"
+		{
+			"typetime"		"1.0"
+			"message"		"Wow you went down easily."
+		}
+		"6"
+		{
+			"typetime"		"1.0"
+			"message"		"I'm so good."
+		}
+		"7"
+		{
+			"typetime"		"1.0"
+			"message"		"BACKSTABBED!"
+		}
+		"8"
+		{
+			"typetime"		"1.0"
+			"message"		"YOU GOT BACKSTABBED! Wait why am I announcing this?"
+		}
+		"9"
+		{
+			"typetime"		"1.0"
+			"message"		"Humans suck!"
+		}
+        	"10"
+		{
+			"typetime"		"1.0"
+			"message"		"Trickstab'd"
+		}
+        	"11"
+		{
+			"typetime"		"3.0"
+			"message"		"Have fun being dead or whatever."
+		}
+        	"12"
+		{
+			"typetime"		"2.5"
+			"message"		"Consider yourself a dead man"
+		}
+	}
+	"player_invulned_medic"
+	{
+		"50"
+		{
+			"typetime"		"0.1"
+			"message"		"I'M USING UBER!"
+			"teamonly"		"1"
+		}
+		"51"
+		{
+			"typetime"		"0.1"
+			"message"		"I'm UBERED!"
+			"teamonly"		"1"
+		}
+        	"52"
+		{
+			"typetime"		"0.1"
+			"message"		"UBER/CRITS POPPED! KICK THEIR ASSES!!!"
+			"teamonly"		"1"
+		}
+        	"53"
+		{
+			"typetime"		"1.0"
+			"message"		"WOOOOH! UBER POWER!"
+		}
+        	"54"
+		{
+			"typetime"		"0.1"
+			"message"		"100% Uber! going to pop it now!"
+			"teamonly"		"1"
+		}
+        	"55"
+		{
+			"typetime"		"1.0"
+			"message"		"DO IT! CHARGE!"
+		}
+        	"56"
+		{
+			"typetime"		"0.1"
+			"message"		"GO GO GO! YOU'RE UBERED!"
+			"teamonly"		"1"
+		}
+	}
+	"player_invulned_patient"
+	{
+		"1"
+		{
+			"typetime"		"1"
+			"message"		"I AM BULLET PROOF!!!"
+			"teamonly"		"1"
+		}
+		"2"
+		{
+			"typetime"		"1"
+			"message"		"OH HELL YEAH!"
+			"teamonly"		"1"
+		}
+		"3"
+		{
+			"typetime"		"1"
+			"message"		"THEY BETTER GET READY!"
+			"teamonly"		"1"
+		}
+		"4"
+		{
+			"typetime"		"1"
+			"message"		"THEY DUN FUCKED UP NOW!"
+			"teamonly"		"1"
+		}
+		"5"
+		{
+			"typetime"		"1"
+			"message"		"I AM A GOD!!!!"
+			"teamonly"		"1"
+		}
+		"6"
+		{
+			"typetime"		"1"
+			"message"		"RUN U LIL BABY MEN!"
+			"teamonly"		"1"
+		}
+		"7"
+		{
+			"typetime"		"1"
+			"message"		"NOW ITS ON LIKE DANKEY KANG!"
+			"teamonly"		"1"
+		}
+		"8"
+		{
+			"typetime"		"1"
+			"message"		"THEY BETTER RUN."
+			"teamonly"		"1"
+		}
+		"9"
+		{
+			"typetime"		"1"
+			"message"		"WOOOH"
+			"teamonly"		"1"
+		}
+		"10"
+		{
+			"typetime"		"1"
+			"message"		"THANK GOODNESS!"
+			"teamonly"		"1"
+		}
+		"11"
+		{
+			"typetime"		"3"
+			"message"		"I TYPE SO FAST THAT I CAN KILL THEM WHILE I TYPE!"
+			"teamonly"		"1"
+		}
+		"12"
+		{
+			"typetime"		"5"
+			"message"		"THIS IS FUN!"
+			"teamonly"		"1"
+		}
+		"13"
+		{
+			"typetime"		"5"
+			"message"		"ARE YOU ENJOYING THIS? I SURE AM!"
+			"teamonly"		"1"
+		}
+	}
+	"player_ignited_victim"
+	{
+		"12"
+		{
+			"typetime"		"3.0"
+			"message"		"FIRE FIRE FIRE"
+			"teamonly"		"1"
+		}
+		"13"
+		{
+			"typetime"		"3.0"
+			"message"		"I'M ON FIRE"
+			"teamonly"		"1"
+		}
+		"14"
+		{
+			"typetime"		"3.0"
+			"message"		"SOMEBODY HELP ME! I'M ON FIRE!"
+			"teamonly"		"1"
+		}
+		"15"
+		{
+			"typetime"		"3.0"
+			"message"		"SOMEONE PLEASE DIRECT ME TO THE NEAREST WATER HOLE!"
+			"teamonly"		"1"
+		}
+		"16"
+		{
+			"typetime"		"3.0"
+			"message"		"Does anyone smell burning flesh?"
+			"teamonly"		"1"
+		}
+		"17"
+		{
+			"typetime"		"3.0"
+			"message"		"AAAHHAHAHA IT BURNS!!!"
+			"teamonly"		"1"
+		}
+		"18"
+		{
+			"typetime"		"3.0"
+			"message"		"Stupid filthy humans. I don't feel the pain of said fire."
+			"teamonly"		"1"
+		}
+        	"19"
+		{
+			"typetime"		"2.0"
+			"message"		"You w+m1"
+		}
+		"20"
+		{
+			"typetime"		"3.0"
+			"message"		"Airblast me fam"
+		}
+		"21"
+		{
+			"typetime"		"3.0"
+			"message"		"Hey! that burns!"
+		}
+      		"22"
+		{
+			"typetime"		"2.0"
+			"message"		"oh no"
+		}
+        	"23"
+		{
+			"typetime"		"2.0"
+			"message"		"YIKES!"
+		}
+	}
+	"player_ignited_victim"
+	{
+		"25"
+		{
+			"typetime"		"2.0"
+			"message"		"BURN"
+			"class"			"7"
+		}
+		"26"
+		{
+			"typetime"		"2.0"
+			"message"		"FIRE TIME!"
+			"class"			"7"
+		}
+		"27"
+		{
+			"typetime"		"2.0"
+			"message"		"DO YOU BELIEVE IN MAGIC?"
+			"class"			"7"
+		}
+		"28"
+		{
+			"typetime"		"2.0"
+			"message"		"It tickles doesn't it?"
+			"class"			"7"
+		}
+		"29"
+		{
+			"typetime"		"2.0"
+			"message"		"Having fun?"
+			"class"			"7"
+		}
+		"30"
+		{
+			"typetime"		"3"
+			"message"		"You may feel a burning sensation on your everywhere."
+			"class"			"7"
+		}
+		"31"
+		{
+			"typetime"		"2.0"
+			"message"		"BURN 2.0"
+			"class"			"7"
+		}
+		"32"
+		{
+			"typetime"		"2.0"
+			"message"		"I LOVE BURNING PEOPLE!"
+			"class"			"7"
+		}
+		"33"
+		{
+			"typetime"		"2.0"
+			"message"		"Mind if I make smores?"
+			"class"			"7"
+		}
+		"34"
+		{
+			"typetime"		"2.0"
+			"message"		"Ouch. That looks like it hurts."
+			"class"			"7"
+		}
+		"35"
+		{
+			"typetime"		"2.0"
+			"message"		"BURN BABY BURN!"
+			"class"			"7"
+		}
+		"36"
+		{
+			"typetime"		"2.0"
+			"message"		"You're on fire!"
+			"class"			"7"
+		}
+       		"37"
+		{
+			"typetime"		"4.5"
+			"message"		"BURN, BABY, BURN!"
+			"class"			"7"
+		}
+        	"38"
+		{
+			"typetime"		"4.5"
+			"message"		"Its not w+m1 its skill y'know"
+			"class"			"7"
+		}
+        	"39"
+		{
+			"typetime"		"4.5"
+			"message"		"Time to DYE!"
+			"class"			"7"
+		}
+        	"40"
+		{
+			"typetime"		"4.5"
+			"message"		"Two hundred degrees. That's why they call me Mister Fahrenheit"
+			"class"			"7"
+		}
+        	"41"
+		{
+			"typetime"		"4.5"
+			"message"		"hello the little boi i am pyro man"
+			"class"			"7"
+	    }
+    }
+    "player_extinguished_player1"
+    {
+        	"50"
+		{
+			"typetime"		"2.0"
+			"message"		"Thanks"
+		}
+		"51"
+		{
+			"typetime"		"2.0"
+			"message"		"Nice fam."
+		}
+        	"52"
+		{
+			"typetime"		"2.0"
+			"message"		"YOU SAVED ME! OMG I LOVE YOU"
+		}
+        	"53"
+		{
+			"typetime"		"2.0"
+			"message"		"I am forever grateful!~"
+		}
+        	"54"
+		{
+			"typetime"		"2.0"
+			"message"		"You're a great person!"
+        }
+    }
+    "player_extinguished_player2"
+    {
+        	"10"
+		{
+			"typetime"		"4.0"
+			"message"		"Your welcome"
+		}
+		"11"
+		{
+			"typetime"		"4.0"
+			"message"		"No problem"
+		}
+        	"12"
+		{
+			"typetime"		"4.0"
+			"message"		"its my thing"
+		}
+        	"13"
+		{
+			"typetime"		"4.0"
+			"message"		"Glad to help"
+		}
+        	"14"
+		{
+			"typetime"		"4.0"
+			"message"		"Next time try not to burn"
+        }  
+    }
+    "player_jarated_player1"
+    {
+        	"1"
+		{
+			"typetime"		"1.0"
+			"message"		"Oh yuck!"
+		}
+		"2"
+		{
+			"typetime"		"1.0"
+			"message"		"This is disgusting"
+		}
+        	"3"
+		{
+			"typetime"		"1.0"
+			"message"		"Oh no, time to run"
+		}
+        	"4"
+		{
+			"typetime"		"1.0"
+			"message"		"This is just. EWWWW"
+		}
+       	 	"5"
+		{
+			"typetime"		"1.0"
+			"message"		"Yep i'm going to die."
+        }
+    }
+    "player_jarated_player2"
+    {
+        "1"
+		{
+			"typetime"		"2.0"
+			"message"		"I guess i just pissed you off"
+		}
+		"2"
+		{
+			"typetime"		"2.0"
+			"message"		"Time to take minicrit damage"
+		}
+        "3"
+		{
+			"typetime"		"2.0"
+			"message"		"Do you consider that a mental crit?"
+		}
+        "4"
+		{
+			"typetime"		"2.0"
+			"message"		"Smells nice huh?"
+		}
+        "5"
+		{
+			"typetime"		"2.0"
+			"message"		"You better run now."
+        }
+	}
+	"player_sapped_object_teleport_owner"
+	{
+		"12"
+		{
+			"typetime"		"1.0"
+			"message"		"spy sapped my teleport"
+			"teamonly"		"1"
+		}
+		"13"
+		{
+			"typetime"		"1.0"
+			"message"		"My teleporter is being sapped!"
+			"teamonly"		"1"
+		}
+		"14"
+		{
+			"typetime"		"1.0"
+			"message"		"There's a spy at my tele!"
+			"teamonly"		"1"
+		}
+		"15"
+		{
+			"typetime"		"1.0"
+			"message"		"Teleporter = Sapped."
+			"teamonly"		"1"
+		}
+		"16"
+		{
+			"typetime"		"1.0"
+			"message"		"Noooo! My tele is sapped!"
+			"teamonly"		"1"
+		}
+        "17"
+		{
+			"typetime"		"1.0"
+			"message"		"Tele being sapped!"
+			"teamonly"		"1"
+		}
+        "18"
+		{
+			"typetime"		"1.0"
+			"message"		"My goddman portal is getting sapped"
+		}
+        "19"
+		{
+			"typetime"		"1.0"
+			"message"		"boi stop sapping my shit"
+		}
+        "20"
+        {
+			"typetime"		"1.0"
+			"message"		"GASP MY TELE"
+		}
+        "21"
+        {
+			"typetime"		"1.0"
+			"message"		"can you not sap meh stuff?"
+		}
+	}
+	"player_sapped_object_sentry_owner"
+	{
+		"76"
+		{
+			"typetime"		"1.0"
+			"message"		"Quick! A Spy sapped my sentry!"
+			"teamonly"		"1"
+		}
+		"77"
+		{
+			"typetime"		"1.0"
+			"message"		"Help! A Spy sapped my sentry!"
+			"teamonly"		"1"
+		}
+		"78"
+		{
+			"typetime"		"1.0"
+			"message"		"My sentry is being sapped!"
+			"teamonly"		"1"
+		}
+		"79"
+		{
+			"typetime"		"1.0"
+			"message"		"MY SENTRY IS SAPPED!"
+			"teamonly"		"1"
+		}
+		"80"
+		{
+			"typetime"		"1.0"
+			"message"		"A Spy is sappin' meh sentry gun!"
+			"teamonly"		"1"
+		}
+		"81"
+		{
+			"typetime"		"1.0"
+			"message"		"My lil poor sentry is being sapped."
+			"teamonly"		"1"
+		}
+		"82"
+		{
+			"typetime"		"1.0"
+			"message"		"Help save my sentry! It's being sapped."
+			"teamonly"		"1"
+		}
+		"83"
+		{
+			"typetime"		"1.0"
+			"message"		"I just built that! My sentry is being sapped!"
+			"teamonly"		"1"
+		}
+		"84"
+		{
+			"typetime"		"1.0"
+			"message"		"Damn spies. They sappin my sentrygun!"
+			"teamonly"		"1"
+		}
+		"85"
+		{
+			"typetime"		"1.0"
+			"message"		"Sentry = Sapped."
+			"teamonly"		"1"
+		}
+        "86"
+		{
+			"typetime"		"2.0"
+			"message"		"Spies are lurkin' they sapped the sentry"
+			"teamonly"		"1"
+		}
+		"87"
+		{
+			"typetime"		"2.0"
+			"message"		"HELP THE GODDMAN SPY IS SAPPING THE SENTRY"
+			"teamonly"		"1"
+		}
+        "88"
+		{
+			"typetime"		"2.0"
+			"message"		"OMG MY SENTRY! SPY! HELP!!111!"
+			"teamonly"		"1"
+		}
+        "89"
+		{
+			"typetime"		"2.0"
+			"message"		"YOU BULLI STOP SAPPING MY GOD DAMN SENTRY U BIG FAT MEANIE"
+		}
+        "90"
+		{
+			"typetime"		"2.0"
+			"message"		"my sentry is being... KILLED!"
+		}
+	}
+	"player_sapped_object_dispenser_owner"
+	{
+		"25"
+		{
+			"typetime"		"1.0"
+			"message"		"spy sapped my dispenser"
+			"teamonly"		"1"
+		}
+		"26"
+		{
+			"typetime"		"1.0"
+			"message"		"My dispenser is being sapped!"
+			"teamonly"		"1"
+		}
+		"27"
+		{
+			"typetime"		"1.0"
+			"message"		"Dispenser = Sapped."
+			"teamonly"		"1"
+		}
+		"28"
+		{
+			"typetime"		"1.0"
+			"message"		"Meh dispenser is sapped!"
+			"teamonly"		"1"
+		}
+		"29"
+		{
+			"typetime"		"2.0"
+			"message"		"NOOOOO! MY DISPENSER IS BEING SAPPED HELP PLS!"
+			"teamonly"		"1"
+		}
+        "30"
+		{
+			"typetime"		"2.0"
+			"message"		"Dispenser being destroyed"
+			"teamonly"		"1"
+		}
+        "31"
+		{
+			"typetime"		"2.0"
+			"message"		"PROTECT MY FUCKING DISPENSER!"
+			"teamonly"		"1"
+		}
+        "32"
+		{
+			"typetime"		"2.0"
+			"message"		"can u don't?"
+		}
+        "33"
+		{
+			"typetime"		"2.0"
+			"message"		"NO DON'T SAP THAT U PRICK"
+		}
+        "34"
+		{
+			"typetime"		"2.0"
+			"message"		"*heavy breathing*"
+		}
+    }
+	"player_sapped_object_teleport_builder"
+	{
+		"6"
+		{
+			"typetime"		"1.0"
+			"message"		"I sapped their teleport."
+			"teamonly"		"1"
+		}
+		"7"
+		{
+			"typetime"		"1.0"
+			"message"		"I sapped their teleportor."
+			"teamonly"		"1"
+		}
+		"8"
+		{
+			"typetime"		"2.0"
+			"message"		"I sapped their teleportor and teleported bread!"
+			"teamonly"		"1"
+		}
+		"9"
+		{
+			"typetime"		"1.0"
+			"message"		"Their teleporter has been sapped!"
+			"teamonly"		"1"
+		}
+		"10"
+		{
+			"typetime"		"1.0"
+			"message"		"Sapped their tele!"
+			"teamonly"		"1"
+		}
+		"11"
+		{
+			"typetime"		"1.0"
+			"message"		"Their tele is sapped!"
+			"teamonly"		"1"
+		}
+        "12"
+		{
+			"typetime"		"2.0"
+			"message"		"im sapping their tele"
+			"teamonly"		"1"
+		}
+        "13"
+		{
+			"typetime"		"2.0"
+			"message"		"going to sap their tele"
+			"teamonly"		"1"
+		}
+        "14"
+		{
+			"typetime"		"2.0"
+			"message"		"Going through and try sap their nest"
+			"teamonly"		"1"
+		}
+        "15"
+		{
+			"typetime"		"2.0"
+			"message"		"taking out their tele"
+			"teamonly"		"1"
+		}
+        "16"
+		{
+			"typetime"		"2.0"
+			"message"		"tele currently being saped"
+			"teamonly"		"1"
+		}
+	}
+	"player_sapped_object_sentry_builder"
+	{
+		"75"
+		{
+			"typetime"		"1.0"
+			"message"		"I sapped their sentry"
+			"teamonly"		"1"
+		}
+		"76"
+		{
+			"typetime"		"1.0"
+			"message"		"I sapped their sentry gun!"
+			"teamonly"		"1"
+		}
+		"77"
+		{
+			"typetime"		"1.0"
+			"message"		"Their sentry is sapped!"
+			"teamonly"		"1"
+		}
+		"78"
+		{
+			"typetime"		"1.0"
+			"message"		"I sapped da other teams sentry!"
+			"teamonly"		"1"
+		}
+		"79"
+		{
+			"typetime"		"1.0"
+			"message"		"Their sentry has been sapped!"
+			"teamonly"		"1"
+		}
+		"80"
+		{
+			"typetime"		"1.0"
+			"message"		"I sapped their sentry. I'm sneaky!"
+			"teamonly"		"1"
+		}
+        "81"
+		{
+			"typetime"		"2.0"
+			"message"		"Sentry sapped, charge while its sapping"
+			"teamonly"		"1"
+		}
+        "82"
+		{
+			"typetime"		"2.0"
+			"message"		"Sentry is stop working go cap!"
+			"teamonly"		"1"
+		}
+        "83"
+		{
+			"typetime"		"2.0"
+			"message"		"Sentry stunned charge"
+			"teamonly"		"1"
+		}
+        "84"
+		{
+			"typetime"		"3.0"
+			"message"		"Sapping sentry!"
+			"teamonly"		"1"
+		}
+        "85"
+		{
+			"typetime"		"3.0"
+			"message"		"At his next and sapping his sentry"
+			"teamonly"		"1"
+		}
+	}
+	"player_sapped_object_dispenser_builder"
+	{
+		"12"
+		{
+			"typetime"		"1.0"
+			"message"		"I sapped their dispenser"
+			"teamonly"		"1"
+		}
+		"13"
+		{
+			"typetime"		"1.0"
+			"message"		"I sapped the other teams dispenser!"
+			"teamonly"		"1"
+		}
+		"14"
+		{
+			"typetime"		"1.0"
+			"message"		"Their dispenser has been sapped."
+			"teamonly"		"1"
+		}
+		"15"
+		{
+			"typetime"		"1.0"
+			"message"		"They have a sapped dispenser!"
+			"teamonly"		"1"
+		}
+        "16"
+		{
+			"typetime"		"1.0"
+			"message"		"I sapped the dispenser"
+			"teamonly"		"1"
+		}
+        "17"
+		{
+			"typetime"		"1.0"
+			"message"		"Going to get their dispenser"
+			"teamonly"		"1"
+		}
+        "18"
+		{
+			"typetime"		"1.0"
+			"message"		"Dispenser sapped."
+			"teamonly"		"1"
+		}
+        "19"
+		{
+			"typetime"		"1.0"
+			"message"		"dispenser being sapped aswell"
+			"teamonly"		"1"
+		}
+        "20"
+		{
+			"typetime"		"2.0"
+			"message"		"i'm sapping his dispenser"
+			"teamonly"		"1"
+		}
+	}
+	"object_destroyed_sentry_destroyer"
+	{
+		"3"
+		{
+			"typetime"		"1.0"
+			"message"		"I destroyed your little sentry!"
+		}
+		"4"
+		{
+			"typetime"		"1.0"
+			"message"		"Baby sentry is dead! Not big suprise."
+		}
+		"5"
+		{
+			"typetime"		"1.0"
+			"message"		"I hate those damn things."
+		}
+		"6"
+		{
+			"typetime"		"1.0"
+			"message"		"Sentry is ded!"
+		}
+		"7"
+		{
+			"typetime"		"1.0"
+			"message"		"HEY EVERYONE I BEAT SATAN!"
+		}
+		"8"
+		{
+			"typetime"		"2.0"
+			"message"		"Wow it didn't put up much of a fight."
+		}
+        "9"
+		{
+			"typetime"		"1.0"
+			"message"		"Got ya sentry"
+		}
+        "10"
+		{
+			"typetime"		"1.0"
+			"message"		"Guess who was at your nest?"
+		}
+        "11"
+		{
+			"typetime"		"1.0"
+			"message"		"His sentry is down."
+            "teamonly"      "1"
+		}
+        "12"
+		{
+			"typetime"		"1.0"
+			"message"		"THIS SENTRY IS MINE NOW"
+		}
+        "13"
+		{
+			"typetime"		"1.0"
+			"message"		"sentry down for count CHARGE!"
+            "teamonly"      "1"
+		}
+        "14"
+		{
+			"typetime"		"1.0"
+			"message"		"Their nest is down"
+            "teamonly"      "1"
+		}
+	}
+	"object_destroyed_dispenser_destroyer"
+	{
+		"5"
+		{
+			"typetime"		"1.0"
+			"message"		"I destroyed your little dispenser!"
+		}
+		"6"
+		{
+			"typetime"		"1.0"
+			"message"		"I made your dispenser go boom!"
+		}
+		"7"
+		{
+			"typetime"		"1.0"
+			"message"		"Say goodbye to your little toy."
+		}
+		"8"
+		{
+			"typetime"		"1.0"
+			"message"		"No more health and metal for you."
+		}
+        "9"
+		{
+			"typetime"		"2.0"
+			"message"		"You didn't need that anyways."
+		}
+        "10"
+        {
+			"typetime"		"2.0"
+			"message"		"That's not nice having that there"
+		}
+        "11"
+        {
+			"typetime"		"2.0"
+			"message"		"Well, this dispenser was mine anways."
+		}
+        "12"
+        {
+			"typetime"		"1.0"
+			"message"		"Their nest is down"
+            "teamonly"      "1"
+		}
+        "13"
+        {
+			"typetime"		"2.0"
+			"message"		"Destroyed your dispenser ;)"
+		}
+	}
+	"object_destroyed_teleport_destroyer"
+	{
+		"5"
+		{
+			"typetime"		"1.0"
+			"message"		"I destroyed your little teleport!"
+		}
+		"6"
+		{
+			"typetime"		"1.0"
+			"message"		"Goodbye teleporter."
+		}
+		"7"
+		{
+			"typetime"		"1.0"
+			"message"		"No more tele for you."
+		}
+		"8"
+		{
+			"typetime"		"1.0"
+			"message"		"Fuck this thing."
+		}
+		"9"
+		{
+			"typetime"		"1.0"
+			"message"		"Have fun walking."
+		}
+        "10"
+		{
+			"typetime"		"1.0"
+			"message"		"Tele down! no more teleports for you"
+		}
+        "11"
+		{
+			"typetime"		"1.0"
+			"message"		"Got their tele"
+            "teamonly"      "1"
+		}
+        "12"
+		{
+			"typetime"		"1.0"
+			"message"		"Your tele just got D E S T R O Y E D"
+		}
+        "13"
+		{
+			"typetime"		"1.0"
+			"message"		"Another building down."
+		}
+        "14"
+		{
+			"typetime"		"1.0"
+			"message"		"Tele down engineer, guess who's next"
+		}
+	}
+	"object_destroyed_sapper_destroyer"
+	{
+		"5"
+		{
+			"typetime"		"1.0"
+			"message"		"I destroyed your little sapper!"
+		}
+		"6"
+		{
+			"typetime"		"1.0"
+			"message"		"HA TAKE THAT SPY!"
+		}
+		"7"
+		{
+			"typetime"		"1.0"
+			"message"		"My buildings are going to be just fine."
+		}
+		"8"
+		{
+			"typetime"		"1.0"
+			"message"		"I saved it."
+		}
+		"9"
+		{
+			"typetime"		"1.0"
+			"message"		"False alarm. We're good."
+		}
+		"10"
+		{
+			"typetime"		"1.0"
+			"message"		"Sapper destroyed."
+		}
+		"11"
+		{
+			"typetime"		"1.0"
+			"message"		"Sapper gone. Buildings safe."
+		}
+        "12"
+		{
+			"typetime"		"2.0"
+			"message"		"Your nose is going to end up like this sapper, BROKEN!!!!"
+		}
+        "13"
+		{
+			"typetime"		"2.0"
+			"message"		"That didn't work. now did it?"
+		}
+        "14"
+		{
+			"typetime"		"2.0"
+			"message"		"Your sapper is gone time to eraser you"
+		}
+        }
+        "15"
+		{
+			"typetime"		"2.0"
+			"message"		"Sad attemp."
+		}
+        "16"
+		{
+			"typetime"		"2.0"
+			"message"		"You're pretty bad for a spy."
+		}
+	}
+	"object_destroyed_sentry_builder"
+	{
+		"50"
+		{
+			"typetime"		"1.0"
+			"message"		"My sentry was destroyed!"
+			"teamonly"		"1"
+		}
+		"51"
+		{
+			"typetime"		"1.0"
+			"message"		"Sentry down!"
+			"teamonly"		"1"
+		}
+		"52"
+		{
+			"typetime"		"1.0"
+			"message"		"No more sentry gun!"
+			"teamonly"		"1"
+		}
+		"53"
+		{
+			"typetime"		"1.0"
+			"message"		"Our sentry is down!"
+			"teamonly"		"1"
+		}
+		"54"
+		{
+			"typetime"		"1.0"
+			"message"		"My sentry was destroyed!"
+			"teamonly"		"1"
+		}
+        "55"
+		{
+			"typetime"		"1.0"
+			"message"		"Sentry down lads!"
+            "teamonly"      "1"
+		}
+        "56"
+		{
+			"typetime"		"1.5"
+			"message"		"Outsmarted again, damn!"
+		}
+        "57"
+		{
+			"typetime"		"1.5"
+			"message"		"Not again!"
+		}
+        "58"
+		{
+			"typetime"		"1.5"
+			"message"		"You got my sentry, nice job"
+		}
+        "59"
+		{
+			"typetime"		"1.5"
+			"message"		"Damn."
+		}
+	}
+	"object_destroyed_dispenser_builder"
+	{
+		"25"
+		{
+			"typetime"		"1.0"
+			"message"		"My dispenser was destroyed!"
+			"teamonly"		"1"
+		}
+		"26"
+		{
+			"typetime"		"1.0"
+			"message"		"My dispenser is down!"
+			"teamonly"		"1"
+		}
+		"27"
+		{
+			"typetime"		"1.0"
+			"message"		"Our dispenser is destroyed!"
+			"teamonly"		"1"
+		}
+		"28"
+		{
+			"typetime"		"1.0"
+			"message"		"They destroyed my dispenser!"
+			"teamonly"		"1"
+		}
+        "29"
+		{
+			"typetime"		"2.0"
+			"message"		"What a waste of metal"
+		}
+        "30"
+		{
+			"typetime"		"2.0"
+			"message"		"Ripe my dispenser"
+		}
+	}
+	"object_destroyed_teleport_builder"
+	{
+		"25"
+		{
+			"typetime"		"1.0"
+			"message"		"My teleporter was destroyed!"
+			"teamonly"		"1"
+		}
+		"26"
+		{
+			"typetime"		"1.0"
+			"message"		"Teleporter down!"
+			"teamonly"		"1"
+		}
+		"27"
+		{
+			"typetime"		"1.0"
+			"message"		"They destroyed my teleporter!"
+			"teamonly"		"1"
+		}
+		"28"
+		{
+			"typetime"		"1.0"
+			"message"		"My teleporter is down!"
+			"teamonly"		"1"
+		}
+		"29"
+		{
+			"typetime"		"1.0"
+			"message"		"Our tele is gone!"
+			"teamonly"		"1"
+		}
+        "30"
+		{
+			"typetime"		"1.0"
+			"message"		"tele down mates"
+            "teamonly"      "1"
+		}
+        "31"
+		{
+			"typetime"		"2.0"
+			"message"		"Goddamn got my tele"
+		}
+        "32"
+		{
+			"typetime"		"2.0"
+			"message"		"Spies are pain in the ass"
+		}
+        "33"
+		{
+			"typetime"		"2.0"
+			"message"		"MY HARD WORK!"
+		}
+        "34"
+		{
+			"typetime"		"2.0"
+			"message"		"rip tele"
+		}
+	}
+	"object_destroyed_sapper_builder"
+	{
+		"25"
+		{
+			"typetime"		"1.0"
+			"message"		"My sapped was destroyed. Be careful."
+			"teamonly"		"1"
+		}
+		"26"
+		{
+			"typetime"		"1.0"
+			"message"		"They got my sap destoryed. Be careful."
+			"teamonly"		"1"
+		}
+		"27"
+		{
+			"typetime"		"1.0"
+			"message"		"Be careful! They destroyed my sapper!"
+			"teamonly"		"1"
+		}
+        "28"
+		{
+			"typetime"		"2.0"
+			"message"		"Their engineer manage to stop my sap. watch out guys"
+            "teamonly"      "1"
+		}
+        "29"
+		{
+			"typetime"		"2.0"
+			"message"		"Engi saved his nest!"
+            "teamonly"      "1"
+		}
+        "30"
+		{
+			"typetime"		"2.5"
+			"message"		"ARE YOU A PRO ENGI?!"
+		}
+        "31"
+		{
+			"typetime"		"2.5"
+			"message"		"You're really good at engi"
+		}
+        "32"
+		{
+			"typetime"		"2.5"
+			"message"		"Damn, he saved his buildings. I'll try to sap it again!"
+		}
+	}
+	"player_upgradedobject_sentry_builder"
+	{
+		"15"
+		{
+			"typetime"		"2.0"
+			"message"		"Upgraded mah sentry"
+			"teamonly"		"1"
+		}
+		"16"
+		{
+			"typetime"		"2.0"
+			"message"		"My Sentry is now upgraded."
+			"teamonly"		"1"
+		}
+		"17"
+		{
+			"typetime"		"2.0"
+			"message"		"My Sentry is on the next level."
+			"teamonly"		"1"
+		}
+		"18"
+		{
+			"typetime"		"2.0"
+			"message"		"I upgraded my sentry gun."
+			"teamonly"		"1"
+		}
+        "19"
+		{
+			"typetime"		"2.0"
+			"message"		"Sentry went up a level"
+			"teamonly"		"1"
+		}
+        "20"
+		{
+			"typetime"		"2.0"
+			"message"		"Upgraded sentry"
+			"teamonly"		"1"
+		}
+        "21"
+		{
+			"typetime"		"2.0"
+			"message"		"Sentry is more powerful"
+			"teamonly"		"1"
+		}
+	}
+	"player_upgradedobject_dispenser_builder"
+	{
+		"5"
+		{
+			"typetime"		"2.0"
+			"message"		"Upgraded mah dispenser"
+			"teamonly"		"1"
+		}
+		"6"
+		{
+			"typetime"		"2.0"
+			"message"		"My dispenser is upgraded."
+			"teamonly"		"1"
+		}
+		"7"
+		{
+			"typetime"		"2.0"
+			"message"		"I got the dispenser upgraded."
+			"teamonly"		"1"
+		}
+		"8"
+		{
+			"typetime"		"2.0"
+			"message"		"I upgraded my dispenser."
+			"teamonly"		"1"
+		}
+        "9"
+		{
+			"typetime"		"2.0"
+			"message"		"Another level."
+			"teamonly"		"1"
+		}
+        "10"
+		{
+			"typetime"		"2.0"
+			"message"		"Nice i upgraded my dispenser"
+			"teamonly"		"1"
+		}
+        "11"
+		{
+			"typetime"		"2.0"
+			"message"		"Dispenser went up a level"
+			"teamonly"		"1"
+		}
+	}
+	"player_builtobject_teleport_exit"
+	{
+		"50"
+		{
+			"typetime"		"3.0"
+			"message"		"made tele guys go through it"
+			"teamonly"		"1"
+		}
+        "51"
+		{
+			"typetime"		"3.0"
+			"message"		"Tele up and running!"
+			"teamonly"		"1"
+		}
+        "52"
+		{
+			"typetime"		"3.0"
+			"message"		"level one tele up"
+			"teamonly"		"1"
+		}
+        "53"
+		{
+			"typetime"		"3.0"
+			"message"		"I, within the context of the time allotted by the presence of sentient life, happen to have a teleport working which leads to the enemy terrority"
+			"teamonly"		"1"
+		}
+        "54"
+		{
+			"typetime"		"3.0"
+			"message"		"Teleport going up!"
+			"teamonly"		"1"
+        }
+	}	
+	"teamplay_point_startcapture_enemy"
+	{
+		"1"
+		{
+			"typetime"		"3.0"
+			"message"		"they're taking our point!"
+			"teamonly"		"1"
+		}
+		"2"
+		{
+			"typetime"		"2.0"
+			"message"		"our point! no!"
+		}
+		"3"
+		{
+			"typetime"		"1.0"
+			"message"		"stop them!"
+			"teamonly"		"1"
+		}
+		"4"
+		{
+			"typetime"		"2.0"
+			"message"		"get off my point!"
+		}
+		"5"
+		{
+			"typetime"		"2.0"
+			"message"		"Our point is getting stolen!"
+		}
+		"6"
+		{
+			"typetime"		"2.0"
+			"message"		"They're on our point!"
+		}
+		"7"
+		{
+			"typetime"		"2.0"
+			"message"		"GET EM OFF MY POINT!"
+		}
+		"8"
+		{
+			"typetime"		"2.0"
+			"message"		"HELP! THE POINT IS BEING STOLEN!"
+		}
+	}
+	"teamplay_point_captured_enemy"
+	{
+		"1"
+		{
+			"typetime"		"1.0"
+			"message"		"Our point!"
+		}
+		"2"
+		{
+			"typetime"		"1.0"
+			"message"		"nooo"
+		}
+		"3"
+		{
+			"typetime"		"2.0"
+			"message"		"oh god noo"
+		}
+		"4"
+		{
+			"typetime"		"1.0"
+			"message"		"dammet"
+		}
+		"5"
+		{
+			"typetime"		"1.0"
+			"message"		"Fuck!"
+		}
+		"6"
+		{
+			"typetime"		"1.0"
+			"message"		"They got the point!"
+		}
+		"7"
+		{
+			"typetime"		"1.0"
+			"message"		"NOOOOO!"
+		}
+		"8"
+		{
+			"typetime"		"1.0"
+			"message"		"HACKKKERRS!"
+		}
+		"9"
+		{
+			"typetime"		"1.0"
+			"message"		"The point!"
+		}
+		"10"
+		{
+			"typetime"		"1.0"
+			"message"		"Shit."
+		}
+		"11"
+		{
+			"typetime"		"1.0"
+			"message"		"Welp."
+		}
+		"12"
+		{
+			"typetime"		"1.0"
+			"message"		"We tried."
+		}
+		"13"
+		{
+			"typetime"		"1.0"
+			"message"		"We didn't do good enough."
+		}
+	}
+	"teamplay_round_win_friend"
+	{
+		"1"
+		{
+			"typetime"		"3.0"
+			"message"		"aw yeah!"
+		}
+		"2"
+		{
+			"typetime"		"3.0"
+			"message"		"that's right"
+			"class"			"1"
+		}
+		"3"
+		{
+			"typetime"		"3.0"
+			"message"		"lol"
+		}
+		"4"
+		{
+			"typetime"		"3.0"
+			"message"		"run cowards"
+			"class"			"6"
+		}
+		"5"
+		{
+			"typetime"		"2.0"
+			"message"		"suckers"
+		}
+		"6"
+		{
+			"typetime"		"2.0"
+			"message"		"WE DID IT!"
+		}
+		"7"
+		{
+			"typetime"		"2.0"
+			"message"		"HELL YEAH!"
+		}
+		"8"
+		{
+			"typetime"		"2.0"
+			"message"		"I BELIEVED IN US!"
+		}
+		"9"
+		{
+			"typetime"		"2.0"
+			"message"		"I knew we could do it."
+		}
+		"10"
+		{
+			"typetime"		"2.0"
+			"message"		"I carried."
+		}
+		"11"
+		{
+			"typetime"		"2.0"
+			"message"		"I'm so fucking good."
+		}
+		"12"
+		{
+			"typetime"		"2.0"
+			"message"		"Too cool for school!"
+		}
+		"13"
+		{
+			"typetime"		"2.0"
+			"message"		"WOOT!"
+		}
+		"14"
+		{
+			"typetime"		"2.0"
+			"message"		"OH MY GOODNESS!"
+		}
+		"15"
+		{
+			"typetime"		"2.0"
+			"message"		"Thank Hale for this win!"
+		}
+	}
+	"teamplay_round_win_enemy"
+	{
+		"1"
+		{
+			"typetime"		"3.0"
+			"message"		"oh god damn!"
+		}
+		"2"
+		{
+			"typetime"		"2.0"
+			"message"		"Don't worry we'll win next time"
+		}
+		"3"
+		{
+			"typetime"		"2.0"
+			"message"		"I don't wanna die"
+		}
+		"4"
+		{
+			"typetime"		"3.0"
+			"message"		"screw this team!"
+		}
+		"5"
+		{
+			"typetime"		"3.0"
+			"message"		"Terrible teammates, can i switch teams"
+		}
+		"6"
+		{
+			"typetime"		"3.0"
+			"message"		"FUCK"
+		}
+		"7"
+		{
+			"typetime"		"3.0"
+			"message"		"NOOOOOOO!!!!"
+		}
+		"8"
+		{
+			"typetime"		"3.0"
+			"message"		"Everybody run for your lives!"
+		}
+		"9"
+		{
+			"typetime"		"3.0"
+			"message"		"WHY DO WE SUCK SO MUCH!"
+		}
+		"10"
+		{
+			"typetime"		"3.0"
+			"message"		"Spongebob ice cream bars are pretty rad."
+		}
+		"11"
+		{
+			"typetime"		"3.0"
+			"message"		"WHY???"
+		}
+		"12"
+		{
+			"typetime"		"3.0"
+			"message"		"WHHAAAT!"
+		}
+		"13"
+		{
+			"typetime"		"3.0"
+			"message"		"Fuck this."
+		}
+		"14"
+		{
+			"typetime"		"3.0"
+			"message"		"Shit."
+		}
+		"15"
+		{
+			"typetime"		"3.0"
+			"message"		"ARE YOU KIDDING ME?"
+		}
+		"16"
+		{
+			"typetime"		"3.0"
+			"message"		"HACKERS!"
+		}
+		"17"
+		{
+			"typetime"		"3.0"
+			"message"		"BULLSHIT!"
+		}
+	}
+	"teamplay_flag_event_captured_player"
+	{
+		"5"
+		{
+			"typetime"		"1"
+			"message"		"CRITS"
+			"teamonly"		"1"
+		}
+		"6"
+		{
+			"typetime"		"1"
+			"message"		"crits, guys"
+			"teamonly"		"1"
+		}
+		"7"
+		{
+			"typetime"		"1"
+			"message"		"CRITS BOI"
+		}
+		"8"
+		{
+			"typetime"		"1"
+			"message"		"Flag is capped."
+		}
+		"9"
+		{
+			"typetime"		"1"
+			"message"		"We gotta point yay!"
+		}
+		"10"
+		{
+			"typetime"		"1"
+			"message"		"We did it!"
+		}
+		"11"
+		{
+			"typetime"		"1"
+			"message"		"HA!"
+		}
+	}
+	"teamplay_flag_event_defended_player"
+	{
+		"20"
+		{
+			"typetime"		"2.0"
+			"message"		"don't touch my flag"
+		}
+		"21"
+		{
+			"typetime"		"2.0"
+			"message"		"That belongs to me."
+		}
+		"22"
+		{
+			"typetime"		"2.0"
+			"message"		"Mine."
+		}
+		"23"
+		{
+			"typetime"		"2.0"
+			"message"		"No thank you sir."
+		}
+		"24"
+		{
+			"typetime"		"2.0"
+			"message"		"My flag. Not yours."
+		}
+		"25"
+		{
+			"typetime"		"2.0"
+			"message"		"Get your own flag."
+		}
+		"26"
+		{
+			"typetime"		"2.0"
+			"message"		"Ha. That's mine."
+		}
+		"27"
+		{
+			"typetime"		"2.0"
+			"message"		"Better luck next time losers."
+		}
+	}
+}

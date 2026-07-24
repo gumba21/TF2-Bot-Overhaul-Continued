@@ -1,0 +1,132 @@
+--- bot_ai.sp (original)
++++ bot_ai.sp (polished)
+@@ -28,8 +28,9 @@
+ bool SpyAttack[MAXPLAYERS+1] = false;
+ bool ImproveAI[MAXPLAYERS+1] = false;
+ 
+ ConVar g_btEnable;
++ConVar g_botDifficulty;
+ 
+ public Plugin myinfo = {
+ 	name = "Bot AI",
+ 	author = "Showin / EfeDursun125, Marqueritte, Guren, Oshizu, thecount, etc",
+@@ -41,8 +42,9 @@
+ {
+ 	HookEvent("teamplay_round_start", SetupStarted);
+ 	HookEvent("teamplay_setup_finished", RoundStarted);
+ 	g_btEnable = CreateConVar("tf_bot_ai_tweaks", "1", "Enables many ai tweaks to make bots smarter. This is performance costly. Default = 1.", _, true, 0.0, true, 1.0);
++	g_botDifficulty = FindConVar("tf_bot_difficulty");
+ }
+ 
+ public Action RoundStarted(Handle event, const char[] name, bool dontBroadcast)
+ {
+@@ -375,54 +377,51 @@
+ 	
+ 	TFClassType class = TF2_GetPlayerClass(client);
+ 	if (g_btEnable.IntValue > 0 && BotTimer[client] < GetGameTime())
+ 	{
+-		//PrintToChatAll("BOT CHECK!");
+-		for(int i = 1; i <= MaxClients; i++)
++		// Start disabled and enable once any qualifying human is found.
++		// Previously, every later human could overwrite an earlier positive match.
++		ImproveAI[client] = false;
++
++		if (IsFakeClient(client))
+ 		{
+-			
+-			if (!IsClientInGame(i) || (i == client) || IsFakeClient(i) || !IsFakeClient(client))
++			// In MvM, all RED bots receive the tweaks as intended.
++			if (MVM == 1)
+ 			{
+-				continue;
++				ImproveAI[client] = GetClientTeam(client) == 2;
+ 			}
+-
+-			float clientOrigin[3];
+-			float searchOrigin[3];
+-			GetClientAbsOrigin(i, searchOrigin);
+-			GetClientAbsOrigin(client, clientOrigin);
+-			float chainDistance;
+-			chainDistance = GetVectorDistance(clientOrigin, searchOrigin);
+-
+-			// Are we playing MVM?
+-			if(MVM == 0)
++			else
+ 			{
+-				// If bot is near or visible to a real player then use ai tweaks.
+-				if (chainDistance < 650 || chainDistance < 1200 && IsPointVisible(searchOrigin, clientOrigin) && GetClientTeam(i) != GetClientTeam(client) || chainDistance < 1200 && class == TFClass_Medic || chainDistance < 1200 && class == TFClass_Spy || chainDistance < 1200 && class == TFClass_Engineer)
++				float clientOrigin[3];
++				GetClientAbsOrigin(client, clientOrigin);
++
++				for (int i = 1; i <= MaxClients; i++)
+ 				{
+-					//PrintToChatAll("IMPROVE AI!");
+-					ImproveAI[client] = true;
+-				}
+-				// If not then forget about it for better performance.
+-				else
+-				{
+-					//PrintToChatAll("BASIC AI!");
+-					ImproveAI[client] = false;
++					if (!IsClientInGame(i) || i == client || IsFakeClient(i))
++					{
++						continue;
++					}
++
++					float searchOrigin[3];
++					GetClientAbsOrigin(i, searchOrigin);
++					float chainDistance = GetVectorDistance(clientOrigin, searchOrigin);
++
++					bool nearbyHuman = chainDistance < 650.0;
++					bool visibleEnemy = chainDistance < 1200.0
++						&& GetClientTeam(i) != GetClientTeam(client)
++						&& IsPointVisible(searchOrigin, clientOrigin);
++					bool supportClassNearHuman = chainDistance < 1200.0
++						&& (class == TFClass_Medic || class == TFClass_Spy || class == TFClass_Engineer);
++
++					if (nearbyHuman || visibleEnemy || supportClassNearHuman)
++					{
++						ImproveAI[client] = true;
++						break;
++					}
+ 				}
+ 			}
+-			// If we are in MVM then just give everyone on red bot tweaks.
+-			else if(chainDistance < 1200 && GetClientTeam(client) == 2)
+-			{
+-				//PrintToChatAll("IMPROVE AI!");
+-				ImproveAI[client] = true;
+-			}
+-			// If not then forget about it for better performance.
+-			else
+-			{
+-				//PrintToChatAll("BASIC AI!");
+-				ImproveAI[client] = false;
+-			}
+ 		}
+-		
++
+ 		BotTimer[client] = GetGameTime() + 1.0;
+ 	}
+ 			
+ 	if(g_btEnable.IntValue > 0 && IsFakeClient(client) && IsPlayerAlive(client) && ImproveAI[client] && !TF2_IsPlayerInCondition(client, TFCond_CritOnWin) && GetEntProp(client, Prop_Send, "m_iStunFlags") != TF_STUNFLAGS_LOSERSTATE)
+@@ -679,15 +678,17 @@
+ 		
+ 		// Make bots randomly spy check nearby spies. 
+ 		// This is sorta cheating but will feel more realistic.
+ 		// This will only come into effect on expert difficulty.
+-		if(GetConVarInt(FindConVar("tf_bot_difficulty")) == 3 && Setup == 0 && Payload == 1 || GetConVarInt(FindConVar("tf_bot_difficulty")) == 3 && Payload == 0)
++		if (g_botDifficulty != null
++			&& g_botDifficulty.IntValue == 3
++			&& (Payload == 0 || Setup == 0))
+ 		{
+ 			if(SpyTimer == INVALID_HANDLE && class != TFClass_Heavy && class != TFClass_Engineer && class != TFClass_Spy && class != TFClass_Sniper && class != TFClass_Medic)
+ 			{	
+ 				int EntSpy = Client_GetClosest_SPY(clientEyes, client);
+ 				//PrintToChatAll("Spy"); 
+-				if(IsValidEntity(EntSpy) && !IsFakeClient(EntSpy) && TF2_GetPlayerClass(EntSpy) == TFClass_Spy && !TF2_IsPlayerInCondition(EntSpy, TFCond_Cloaked) && TF2_IsPlayerInCondition(GetClientTeam(EntSpy) != GetClientTeam(client), TFCond_Disguised))
++				if(IsValidEntity(EntSpy) && !IsFakeClient(EntSpy) && TF2_GetPlayerClass(EntSpy) == TFClass_Spy && !TF2_IsPlayerInCondition(EntSpy, TFCond_Cloaked) && GetClientTeam(EntSpy) != GetClientTeam(client) && TF2_IsPlayerInCondition(EntSpy, TFCond_Disguised))
+ 				{
+ 					float clientOrigin[3];
+ 					float searchOrigin[3];
+ 					GetClientAbsOrigin(EntSpy, searchOrigin);

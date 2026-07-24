@@ -1,0 +1,503 @@
+//TF MISSIONS MESSAGES/HINTS
+// Position command $position x y 
+// x & y are from 0 to 1 to be screen resolution independent
+// -1 means center in each dimension
+// Effect command $effect <effect number>
+// effect 0 is fade in/fade out
+// effect 1 is flickery credits
+// effect 2 is write out (training room)
+// Text color r g b command $color
+// fadein time fadeout time / hold time
+// $fadein (message fade in time - per character in effect 2)
+// $fadeout (message fade out time)
+// $holdtime (stay on the screen for this long)
+
+// In-Game messages RED
+// RED MISSIONS MUST GO BELOW THIS!
+$position -1 0.15
+$effect 2
+// This is the final color
+$color 235 226 202 255
+// This is the highlight color
+$color2 46 43 42 255
+// This is the time it takes to fade each character
+$fadein 0.01
+// This is the amount of time the highlight lags behind the leading edge of the text
+$fxtime 0.15
+// How long to hold the message on the screen (after it scans out)
+$holdtime 7.0
+// How long it takes to fade out the message after holding
+$fadeout 3.0
+
+$boxsize 1.0
+$boxcolor 228 102 102 120
+
+
+// MISSION #1 - Russian Heist
+
+$position -1 0.15
+$holdtime 7.0
+ctf_2fort_hint_1
+{
+#ctf_2fort_hint_1
+}
+
+$position -1 0.15
+$holdtime 7.0
+ctf_2fort_hint_2
+{
+#ctf_2fort_hint_2
+}
+
+// MISSION #4 - Triangular Attack
+
+$position -1 0.15
+$holdtime 7.0
+cp_gravelpit_hint_1
+{
+#cp_gravelpit_hint_1
+}
+
+$position -1 0.15
+$holdtime 5.0
+cp_gravelpit_heavy_tank_notify
+{
+#cp_gravelpit_heavy_tank_notify
+}
+
+$position -1 0.25
+$holdtime 7.0
+cp_gravelpit_heavy_tank_1
+{
+#cp_gravelpit_heavy_tank_1
+}
+
+$position -1 0.25
+$holdtime 7.0
+cp_gravelpit_heavy_tank_2
+{
+#cp_gravelpit_heavy_tank_2
+}
+
+$position -1 0.25
+$holdtime 7.0
+cp_gravelpit_heavy_tank_3
+{
+#cp_gravelpit_heavy_tank_3
+}
+
+$position -1 0.25
+$holdtime 7.0
+cp_gravelpit_heavy_tank_4
+{
+#cp_gravelpit_heavy_tank_4
+}
+
+// MISSION #5 - Engineer Gaming
+
+$position -1 0.15
+$holdtime 5.0
+koth_badlands_hint_1
+{
+#koth_badlands_hint_1
+}
+
+$position -1 0.25
+$holdtime 7.0
+koth_badlands_hint_2
+{
+#koth_badlands_hint_2
+}
+
+$position -1 0.25
+$holdtime 7.0
+koth_badlands_hint_2_2
+{
+#koth_badlands_hint_2_2
+}
+
+$position -1 0.15
+$holdtime 7.0
+koth_badlands_timer_1
+{
+#koth_badlands_timer_1
+}
+
+$position -1 0.15
+$holdtime 5.0
+koth_badlands_timer_2
+{
+#koth_badlands_timer_2
+}
+
+// MISSION #6 - The Commander
+
+$position -1 0.15
+$holdtime 3.5
+cp_badlands_hint_1
+{
+#cp_badlands_hint_1
+}
+
+$position -1 0.25
+$holdtime 5.0
+cp_badlands_hint_2
+{
+#cp_badlands_hint_2
+}
+
+$position -1 0.25
+$holdtime 5.0
+cp_badlands_hint_3
+{
+#cp_badlands_hint_3
+}
+
+$position -1 0.25
+$holdtime 5.0
+cp_badlands_hint_4
+{
+#cp_badlands_hint_4
+}
+
+$position -1 0.25
+$holdtime 5.0
+cp_badlands_hint_5
+{
+#cp_badlands_hint_5
+}
+
+$position -1 0.25
+$holdtime 5.0
+cp_badlands_hint_6
+{
+#cp_badlands_hint_6
+}
+
+// INVASION MISSIONS #3 - THE QUARANTINED
+$position -1 0.15
+$holdtime 6.5
+ctf_2fort_invasion_hint_1
+{
+#ctf_2fort_invasion_hint_1
+}
+
+$position -1 0.15
+$holdtime 5.5
+ctf_2fort_invasion_hint_2
+{
+#ctf_2fort_invasion_hint_2
+}
+
+$position -1 0.15
+$holdtime 5.5
+ctf_2fort_invasion_hint_3
+{
+#ctf_2fort_invasion_hint_3
+}
+
+$position -1 0.15
+$holdtime 5.5
+ctf_2fort_invasion_hint_4
+{
+#ctf_2fort_invasion_hint_4
+}
+
+$position -1 0.15
+$holdtime 5.5
+ctf_2fort_invasion_hint_5
+{
+#ctf_2fort_invasion_hint_5
+}
+
+$position -1 0.15
+$holdtime 7.0
+ctf_2fort_invasion_blueprints
+{
+#ctf_2fort_invasion_blueprints
+}
+
+$position -1 0.15
+$holdtime 5.0
+ctf_2fort_invasion_enterance
+{
+#ctf_2fort_invasion_enterance
+}
+
+$position -1 0.25
+$holdtime 7.0
+ctf_2fort_invasion_infected_easteregg
+{
+#ctf_2fort_invasion_infected_easteregg
+}
+
+$position -1 0.15
+$holdtime 5.5
+ctf_2fort_invasion_intro
+{
+#ctf_2fort_invasion_intro
+}
+
+// INVASION MISSIONS #5 - The Last Hope
+
+$position -1 0.15
+$holdtime 7.0
+pd_watergate_hint_1
+{
+#pd_watergate_hint_1
+}
+
+$position -1 0.15
+$holdtime 7.0
+pd_watergate_hint_2
+{
+#pd_watergate_hint_2
+}
+
+$position -1 0.15
+$holdtime 7.0
+pd_watergate_hint_3
+{
+#pd_watergate_hint_3
+}
+
+// In-Game messages BLU
+// BLU MISSIONS MUST GO BELOW THIS!
+$position -1 0.15
+$effect 2
+// This is the final color
+$color 235 226 202 255
+// This is the highlight color
+$color2 46 43 42 255
+// This is the time it takes to fade each character
+$fadein 0.01
+// This is the amount of time the highlight lags behind the leading edge of the text
+$fxtime 0.15
+// How long to hold the message on the screen (after it scans out)
+$holdtime 7.0
+// How long it takes to fade out the message after holding
+$fadeout 1.0
+
+$boxsize 1.0
+$boxcolor 102 124 153 120
+
+// MISSION #2 - Patriotic Push
+
+$position -1 0.15
+$holdtime 7.0
+pl_badwater_hint_1
+{
+#pl_badwater_hint_1
+}
+
+$position -1 0.15
+$holdtime 5.0
+pl_badwater_hint_2
+{
+#pl_badwater_hint_2
+}
+
+// MISSION #3 - Olympic Breakout
+
+$position -1 0.15
+$holdtime 7.0
+cp_well_hint_1
+{
+#cp_well_hint_1
+}
+
+$position -1 0.15
+$holdtime 5.0
+cp_well_hint_2
+{
+#cp_well_hint_2
+}
+
+$position -1 0.15
+$holdtime 7.0
+cp_well_hint_3
+{
+#cp_well_hint_3
+}
+
+$position -1 0.15
+$holdtime 5.0
+cp_well_hint_4
+{
+#cp_well_hint_4
+}
+
+$position -1 0.25
+$holdtime 7.0
+cp_well_hint_patroller_1
+{
+#cp_well_hint_patroller_1
+}
+
+$position -1 0.25
+$holdtime 7.0
+cp_well_hint_patroller_2
+{
+#cp_well_hint_patroller_2
+}
+
+$position -1 0.25
+$holdtime 4.5
+cp_well_hint_patroller_3
+{
+#cp_well_hint_patroller_3
+}
+
+$position -1 0.25
+$holdtime 7.0
+cp_well_patroller_easteregg
+{
+#cp_well_patroller_easteregg
+}
+
+// INVASION MISSIONS #1 - First Contact
+
+$position -1 0.15
+$holdtime 7.0
+koth_probed_hint_1
+{
+#koth_probed_hint_1
+}
+
+$position -1 0.25
+$holdtime 6.5
+koth_probed_hint_2
+{
+#koth_probed_hint_2
+}
+
+$position -1 0.25
+$holdtime 5.5
+koth_probed_hint_3
+{
+#koth_probed_hint_3
+}
+
+$position -1 0.25
+$holdtime 5.5
+koth_probed_hint_4
+{
+#koth_probed_hint_4
+}
+
+$position -1 0.25
+$holdtime 5.5
+koth_probed_hint_5
+{
+#koth_probed_hint_5
+}
+
+$position -1 0.15
+$holdtime 5.0
+koth_probed_battery
+{
+#koth_probed_battery
+}
+
+$position -1 0.15
+$holdtime 5.0
+koth_probed_attack
+{
+#koth_probed_attack
+}
+
+// INVASION MISSIONS #2 - Sentry Buster
+
+$position -1 0.15
+$holdtime 7.0
+arena_byre_hint_1
+{
+#arena_byre_hint_1
+}
+
+// INVASION MISSIONS #4 - Operation ET
+
+$position -1 0.15
+$holdtime 7.0
+pl_snowycoast_hint_1
+{
+#pl_snowycoast_hint_1
+}
+
+// MiSSION #6 - KING OF YE DEMOMEN
+
+$position -1 0.15
+$holdtime 7.0
+cp_degrootkeep_hint_1
+{
+#cp_degrootkeep_hint_1
+}
+
+$position -1 0.25
+$holdtime 7.0
+cp_degrootkeep_hint_2
+{
+#cp_degrootkeep_hint_2
+}
+
+$position -1 0.15
+$holdtime 7.0
+cp_degrootkeep_hint_3
+{
+#cp_degrootkeep_hint_3
+}
+
+$position -1 0.15
+$holdtime 7.0
+cp_degrootkeep_hint_3b
+{
+#cp_degrootkeep_hint_3b
+}
+
+$position -1 0.25
+$holdtime 7.0
+cp_degrootkeep_hint_4
+{
+#cp_degrootkeep_hint_4
+}
+
+$position -1 0.25
+$holdtime 7.0
+cp_degrootkeep_hint_5
+{
+#cp_degrootkeep_hint_5
+}
+
+$position -1 0.25
+$holdtime 7.0
+cp_degrootkeep_hint_6
+{
+#cp_degrootkeep_hint_6
+}
+
+$position -1 0.25
+$holdtime 7.0
+cp_degrootkeep_hint_7
+{
+#cp_degrootkeep_hint_7
+}
+
+// CREDITS
+$position -1 0
+$effect 0
+// This is the final color
+$color 255 255 255 255
+// This is the highlight color
+$color2 255 255 255 255
+// This is the time it takes to fade each character
+$fadein 1.0
+// This is the amount of time the highlight lags behind the leading edge of the text
+$fxtime 0
+// How long to hold the message on the screen (after it scans out)
+$holdtime 6.0
+// How long it takes to fade out the message after holding
+$fadeout 1.0
+
+$boxsize 0.0
+$boxcolor 0 0 0 0
+

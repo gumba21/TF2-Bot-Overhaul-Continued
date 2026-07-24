@@ -1,0 +1,19 @@
+"Games"
+{
+	/* Team Fortress 2 */
+	"tf"
+	{
+		"Offsets"
+		{
+			"EquipWearable"
+			{
+				"windows"	"439"
+				"windows64"	"439"
+				"linux"		"440"
+				"linux64"	"440"
+				"mac"		"440"
+				"mac64"		"440"
+			}
+		}
+	}
+}

@@ -1,0 +1,298 @@
+	add:
+	{
+		"origin" "360 248 24"
+		"team" "blue"
+		"targetname" "bot_roster_blue"
+		"allowSpy" "1"
+		"allowSoldier" "1"
+		"allowSniper" "1"
+		"allowScout" "1"
+		"allowPyro" "1"
+		"allowMedic" "1"
+		"allowHeavy" "1"
+		"allowEngineer" "1"
+		"allowDemoman" "1"
+		"allowClassChanges" "1"
+		"classname" "bot_roster"
+	}
+	{
+		"origin" "360 248 24"
+		"team" "red"
+		"targetname" "bot_roster_red"
+		"allowSpy" "1"
+		"allowSoldier" "1"
+		"allowSniper" "1"
+		"allowScout" "1"
+		"allowPyro" "1"
+		"allowMedic" "1"
+		"allowHeavy" "1"
+		"allowEngineer" "1"
+		"allowDemoman" "1"
+		"allowClassChanges" "1"
+		"classname" "bot_roster"
+	}
+	{
+		"origin" "216 8 -8"
+		"targetname" "server_command"
+		"classname" "point_servercommand"
+	}
+	{
+	"origin" "-6016 2928 1136"
+	"volstart" "0"
+	"targetname" "tf2theme1"
+	"spinup" "0"
+	"spindown" "0"
+	"spawnflags" "33"
+	"radius" "1250"
+	"preset" "0"
+	"pitchstart" "100"
+	"pitch" "100"
+	"message" "ui/gamestartup1.mp3"
+	"lfotype" "0"
+	"lforate" "0"
+	"lfomodvol" "0"
+	"lfomodpitch" "0"
+	"health" "10"
+	"fadeoutsecs" "0"
+	"fadeinsecs" "0"
+	"cspinup" "0"
+	"classname" "ambient_generic"
+	}
+	{
+	"origin" "-6016 2928 1136"
+	"volstart" "0"
+	"targetname" "tf2theme2"
+	"spinup" "0"
+	"spindown" "0"
+	"spawnflags" "33"
+	"radius" "1250"
+	"preset" "0"
+	"pitchstart" "100"
+	"pitch" "100"
+	"message" "ui/gamestartup8.mp3"
+	"lfotype" "0"
+	"lforate" "0"
+	"lfomodvol" "0"
+	"lfomodpitch" "0"
+	"health" "10"
+	"fadeoutsecs" "0"
+	"fadeinsecs" "0"
+	"cspinup" "0"
+	"classname" "ambient_generic"
+	}
+	{
+		"origin" "1894 1311 344"
+		"team" "blue"
+		"targetname" "soldier_generator_1"
+		"suppressFire" "0"
+		"useTeamSpawnPoint" "1"
+		"spawnflags" "0"
+		"maxActive" "2"
+		"interval" "25"
+		"initial_command" "goto action point"
+		"disableDodge" "0"
+		"count" "4"
+		"class" "soldier"
+		"angles" "0 0 0"
+		"actionOnDeath" "2"
+		"action_point" "soldier_1_action"
+		"classname" "bot_generator"
+	}
+	{
+		"origin" "1894 1311 344"
+		"team" "blue"
+		"targetname" "soldier_generator_2"
+		"suppressFire" "0"
+		"useTeamSpawnPoint" "1"
+		"spawnflags" "0"
+		"maxActive" "1"
+		"interval" "25"
+		"initial_command" "goto action point"
+		"disableDodge" "0"
+		"count" "4"
+		"class" "soldier"
+		"angles" "0 0 0"
+		"actionOnDeath" "2"
+		"action_point" "soldier_2_action"
+		"classname" "bot_generator"
+	}
+	{
+		"origin" "1894 1311 344"
+		"team" "red"
+		"targetname" "soldier_generator_red"
+		"suppressFire" "0"
+		"useTeamSpawnPoint" "1"
+		"spawnflags" "0"
+		"maxActive" "2"
+		"interval" "25"
+		"initial_command" "goto action point"
+		"disableDodge" "0"
+		"count" "4"
+		"class" "soldier"
+		"angles" "0 0 0"
+		"actionOnDeath" "2"
+		"action_point" "soldier_2_action"
+		"classname" "bot_generator"
+	}
+	{
+		"origin" "-234 -955 310"
+		"targetname" "soldier_1_action"
+		"stay_time" "99999"
+		"desired_distance" "50"
+		"classname" "bot_action_point"
+	}
+	{
+		"origin" "794 2320 291"
+		"targetname" "soldier_2_action"
+		"stay_time" "99999"
+		"desired_distance" "125"
+		"classname" "bot_action_point"
+	}
+	{
+		"origin" "-1874 -1320 336"
+		"team" "blue"
+		"targetname" "Blu_Heavy_generator"
+		"suppressFire" "0"
+		"useTeamSpawnPoint" "1"
+		"spawnflags" "0"
+		"maxActive" "1"
+		"interval" "25"
+		"initial_command" "goto action point"
+		"disableDodge" "0"
+		"count" "1"
+		"class" "heavyweapons"
+		"angles" "0 0 0"
+		"actionOnDeath" "1"
+		"action_point" "generator_ap_row1_1"
+		"classname" "bot_generator"
+	}
+	{
+		"origin" "-1874 -1320 336"
+		"team" "red"
+		"targetname" "Red_Heavy_generator"
+		"suppressFire" "0"
+		"useTeamSpawnPoint" "1"
+		"spawnflags" "0"
+		"maxActive" "1"
+		"interval" "25"
+		"initial_command" "goto action point"
+		"disableDodge" "0"
+		"count" "1"
+		"class" "heavyweapons"
+		"angles" "0 0 0"
+		"actionOnDeath" "1"
+		"action_point" "generator_ap_row1_2"
+		"classname" "bot_generator"
+	}
+	{
+		"origin" "476 -3178 -132"
+		"targetname" "generator_ap_row1_1"
+		"stay_time" "10"
+		"next_action_point" "generator_ap_row1_2"
+		"desired_distance" "128"
+		"classname" "bot_action_point"
+	}
+	{
+		"origin" "596 -3015 -147"
+		"targetname" "generator_ap_row1_2"
+		"stay_time" "10"
+		"next_action_point" "generator_ap_row1_3"
+		"desired_distance" "128"
+		"classname" "bot_action_point"
+	}
+	{
+		"origin" "-674 -2533 -157"
+		"targetname" "generator_ap_row1_3"
+		"stay_time" "3"
+		"next_action_point" "generator_ammo_blu"
+		"desired_distance" "75"
+		"classname" "bot_action_point"
+	}
+	{
+		"origin" "-667 -2477 -178"
+		"targetname" "generator_ammo_blu"
+		"stay_time" "3"
+		"next_action_point" "generator_ap_row1_2"
+		"desired_distance" "75"
+		"classname" "bot_action_point"
+	}
+	{
+		"origin" "0 0 0"
+		"targetname" "flag_message1"
+		"backround" "blue"
+		"message" "Get the flag back to your base!"
+		"classname" "game_text_tf"
+	}
+	{
+		"origin" "0 0 0"
+		"targetname" "MISSION"
+		"filename" "maps/#1/MISSIONS.bns"
+		"mapname" "#TF_Map_ctf_2fort"
+		"classname" "point_bonusmaps_accessor"
+	}
+	{
+		"origin" "0 0 0"
+		"targetname" "MISSION2"
+		"filename" "maps/#1/MISSIONS.bns"
+		"mapname" "#TF_Map_pl_badwater"
+		"classname" "point_bonusmaps_accessor"
+	}
+	modify:
+	{
+		match:
+		{
+			"origin" "912 1440 320"
+			"filtername" "filter_red_team"
+			"classname"  "trigger_multiple"
+		}
+		insert:
+		{
+			"OnEndTouchAll" "soldier_generator_1*,Enable,,0,-1"
+			"OnEndTouchAll" "Blu_Heavy_generator*,Enable,,0,-1"
+			//"OnEndTouchAll" "tf2theme1,PlaySound,,1,-1"
+		}
+	}
+	{
+		match:
+		{
+			"targetname" "flag_red"
+		}
+		insert:
+		{
+			"flag_model" "models/empty.mdl"
+			"parentname" "flag_blue"
+			"OnPickup" "!self,ForceDrop,,1,-1"
+			"OnPickup" "!self,ForceReset,,2,-1"
+		}
+		replace:
+		{
+			"origin" "489.005 -3348.51 -131.106"
+		}
+	}
+	{
+		match:
+		{
+			"targetname" "capturezone_blue"
+		}
+		replace:
+		{
+			"StartDisabled" "1"
+		}
+	}
+	{
+		match:
+		{
+			"targetname" "flag_blue"
+		}
+		insert:
+		{
+			// Add little goal descriptions using the old text stuff u used for ur version of tr_target
+			"OnPickup" "soldier_generator_2*,Enable,,0,-1"
+			"OnPickup" "flag_message1,display,0,-1"
+			"OnPickup"  "server_command,Command,tf_bot_add 1 blue,1,1"
+			"OnPickup"  "tf2theme2,PlaySound,,1,-1"
+			//"OnCapture" "MISSION,Complete,,1,-1" // Doing this will crash the game when trying to load a save. It doesn't really do much beyond adding an icon so this is fine.
+			"OnCapture" "MISSION2,Unlock,,2,-1"
+			"OnCapture" "MISSION,Save,,1,-1"
+		}
+	}

@@ -1,0 +1,206 @@
+// THIS EXPLAINS SOME STUFF FOR CREATING MISSIONS
+// REFERENCES AND SHIT FOR DEVS
+
+// Make sure u add these to listenserver.cfg after using them if they aren't there already.
+Console Variables that could useful! (some of these are hidden and need sm_cvar)
+----------------------------------------------------------------
+tf_boost_drain_time 15.0 // Time is takes for a full health boost to drain away from a player.
+tf_damage_multiplier_blue 1 // Multiply the damage this team takes.
+tf_damage_multiplier_red 1 // Multiply the damage this team takes.
+tf_caplinear 1 // If set to 1, teams must capture control points linearly.
+tf_cheapobjects 0 // Build without needing metal.
+tf_construction_build_rate_multiplier 1.5 // How much faster buildings build when u hit them.
+tf_sentrygun_damage 16 // How much damage sentries can do.
+tf_sentrygun_mini_damage 8 // Mini sentry damage.
+tf_sentrygun_metal_per_rocket  // How much ammo it takes from rockets
+tf_sentrygun_metal_per_shell // How much ammo it takes from shells
+tf_sentrygun_newtarget_dist  // How far the enemy must be for it to see them     
+tf_demoman_charge_drain_time 1.5 // How fast a charge drains.
+tf_demoman_charge_regen_rate 8.3 // How fast a charge recharges obviously.
+tf_max_health_boost 1.5 // Max health boost from medics.
+weapon_medigun_charge_rate 40 // Amount of time healing it takes to fully charge the medigun.
+weapon_medigun_chargerelease_rate 8 // Amount of time it takes the a full charge of the medigun to be released.
+weapon_medigun_construction_rate 10 // Constructing object health healed per second by the medigun.
+weapon_medigun_damage_modifier 1.5 // Scales the damage a player does while being healed with the medigun.
+weapon_medigun_resist_num_chunks 4 // How many uber bar chunks the vaccinator has.
+tf_vaccinator_uber_charge_rate_modifier 1.0 // Vaccinator uber charge rate.
+shake // makes screen shake (requires cheats)
+ghost_spawn // Spawns ghost in front of the player (requires cheats) // Assuming u want to mess with them.
+tf_ctf_bonus_time // Determines how long u have criticals after capping in ctf.
+tf_medieval // Use degroot keep gamemode logic.
+tf_obj_upgrade_per_hit // normally 25
+tf_fastbuild // Basically the same as cheapobjects?
+tf_scout_air_dash_count // normally 1 but u can add more double jumps
+tf_spy_cloak_consume_rate // how fast cloak drains
+tf_spy_cloak_regen_rate    // how fast cloak regens    
+sm_cvar obj_damage_factor 0 // not tested but multiplies damage to objects like sentryguns      
+obj_sapper_amount 25 // sapper damage per sec
+sm_cvar sv_friction 4 // friction stuff setting it to 0.75 will feel like ice for example, setting it real high will make u slow
+
+ent_fire !picker setbuilder !player; ent_create obj_sentrygun teamnum 2 defaultupgrade 2 
+spawn sentry for spy testing
+
+BONUS DUCKS
+-----------
+skins
+-----
+0	{ "eotl_ducky_base"               }
+1	{ "eotl_ducky_red_badge"          }
+2	{ "eotl_ducky_blue_badge"         }
+3	{ "eotl_ducky_scout_badge"        }
+4	{ "eotl_ducky_sniper_badge"       }
+5	{ "eotl_ducky_soldier_badge"      }
+6	{ "eotl_ducky_demo_badge"         }
+7	{ "eotl_ducky_medic_badge"        }
+8	{ "eotl_ducky_heavy_badge"        }
+9	{ "eotl_ducky_pyro_badge"         }
+10	{ "eotl_ducky_spy_badge"          }
+11	{ "eotl_ducky_engy_badge"         }
+12	{ "eotl_ducky_scout_blue_badge"   }
+13	{ "eotl_ducky_sniper_blue_badge"  }
+14	{ "eotl_ducky_soldier_blue_badge" }
+15	{ "eotl_ducky_demo_blue_badge"    }
+16	{ "eotl_ducky_medic_blue_badge"   }
+17	{ "eotl_ducky_heavy_blue_badge"   }
+18	{ "eotl_ducky_pyro_blue_badge"    }
+19	{ "eotl_ducky_spy_blue_badge"     }
+20	{ "eotl_ducky_engy_blue_badge"    }
+21	{ "eotl_ducky_saxton_badge"       }
+22	{ "eotl_ducky_invis_badge"       }
+
+1. Spawn Spies behind the player's team:
+-once the player captures a point, set a spy generator's coordinates to those of a current blind spot.
+
+2.Manual Sentry gun placement template
+
+	}
+	{
+  		"origin" "-415 -1941 68" //NOTE: MAKE SURE THESE COORDINATES ARE SET IN THE GROUND, NOCLIP INSIDE THE GROUND WITH YOUR HEAD OUT, AND ENTER "getpos" IN CONSOLE.
+		"teamnum" "2" // 2- red  3- blue
+		"targetname" "sentrygun_1" // name it whatever you want, spaces must be _
+        "defaultupgrade" "2" // 0- level 1 ; 1- level 2 ; 2- level 3
+		"spawnflags" "8" // 2- invulnerability ; 4- upgradeable ; 8- unlimited ammo
+		"angles" "3 167 0" // enter "getpos" in console while facing the direction you want, then get the numbers ahead of where it says "setang"
+		"classname" "obj_sentrygun" // name of the entity itself, keep it like this (unless you want a dispenser, replace "sentrygun" with "dispenser").
+	}
+	{
+
+3.Using the initial command "build sentry at nearest sentry hint"
+
+
+		"origin" "-644 -291 506" 
+		"TeamNum" "3"
+		"targetname" "bot_nest
+		"sticky" "1" ///THIS MUST BE ENABLED OR ELSE THE BOT WILL BUILD AND INSTANTLY DESTROY HIS SENTRY.
+		"StartDisabled" "0"
+		"sequence" "5"
+		"angles" "6 -86 0"
+		"classname" "bot_hint_sentrygun"
+	}
+	{
+		"origin" "-644 -291 506" 
+		"TeamNum" "3"
+		"targetname" "bot_nest"
+		"sticky" "1" ///THIS MUST BE ENABLED OR ELSE THE BOT WILL BUILD AND INSTANTLY DESTROY HIS SENTRY.
+		"StartDisabled" "0"
+		"sequence" "5"
+		"angles" "6 -86 0"
+		"classname" "bot_hint_engineer_nest"
+	}
+
+FYI they will not build dispensers (unless you don't use the initial command mentioned earlier), they will build a sentry first, if it's destroyed, they attempt to build a teleporter.
+
+4.Bonus Dispensers
+
+Put dispensers of the player's team on spots that are both useful and don't easily get on the enemy team's sights.
+
+5.Ctf base watchers (also applies to normal ctf games)
+
+Put multiple action points on the bot's team's base, so the bot will walk around the base, preventing camping.
+
+6. prop/health and ammo placement template
+
+	add:
+	{
+  		"origin" "99 -75 129"
+		"targetname" "tank"
+        "Solid" "1"
+        "model" "models/props_skybox/skybox_carrier.mdl"
+		"angles" "8 -2 0"
+		"classname" "prop_dynamic"
+	}
+	{
+
+// COMMON HINT ICONS	
+ico_notify_flag_moving - ! symbol
+ico_notify_flag_home - house symbol
+ico_notify_flag_dropped - arrow pointing down
+ico_notify_sixty_seconds - stopwatch
+hud_menu_sentry_build - sentry blueprint
+
+// MUSIC
+This is a list of songs that each gamestartup mp3 file in sounds - ui corresponds to:
+
+gamestartup1-Team Fortress 2
+gamestartup2-Playing with Danger
+gamestartup3-Rocket Jump Waltz
+gamestartup4-The Art of War
+gamestartup5-Faster than a speeding bullet
+gamestartup6-Cetite Chou-Fleur
+gamestartup7-Right behind you
+gamestartup8-Intruder Alert
+gamestartup9-Drunken Pipe Bomb
+gamestartup10-More Gun
+gamestartup11-A little heart to heart
+gamestartup12-MEDIC!
+gamestartup13-Archimedes
+gamestartup14-Dreams of Cruelty
+gamestartup15-The calm
+gamestartup16-ROBOTS!
+gamestartup17-Dapper Cadaver
+gamestartup18-Rise of the living bread
+gamestartup19-Red Bread
+gamestartup20-Three Days to Live
+gamestartup21-Seduce Me!
+gamestartup22-Stink Lines
+gamestartup23-It hates me so much
+gamestartup24-Soldier of Dance
+gamestartup25-RED Triumphs!
+gamestartup26-BLU Triumphs!
+gamestartup27-Yeti Park
+gamestartup28-Saxton's Dilemma
+gamestartup29-Mercenary Park
+gamestartup_halloween-Haunted Fortress 2
+gamestartup_halloween1-Misfortune Teller
+gamestartup_saxxy-TF2 Saxxy 2011 theme
+gamestartup_soldier-Saluting the Fallen
+
+special:
+
+vlvx_song27-Hunter Scout's theme (Hunting Party from Half Life 2: Episode Two)
+
+
+HOW TO USE SONGS?
+Paste this into your mission:
+	{
+		"origin" "110 10 0"
+		"volstart" "10"
+		"targetname" "hunter_theme" //name that you'll use to later enable the song via an input.
+		"spinup" "0"
+		"spindown" "0"
+		"spawnflags" "49" //to make it play anywhere at the same set volume. Substract by 1 to make it only play in a set radius, substract by 32 to make it loop.
+		"radius" "9999" //space where it can be played, only works if spawnflags don't include "play everywhere" aka flag 1. 
+		"preset" "0"
+		"pitchstart" "100"
+		"pitch" "100"
+		"message" "#mission/vlvx_song27.mp3" //song filename, put "ui/songname" where songname is for one of the song file names mentioned above. Custom added songs are stored in the mission folder, thus the reason why the hunter's theme has "mission" instead of "ui". Also, the # at the start of "ui" will make it so the sound in game is treated as "music" which will allow you to lower the volume of the music in the options menu.
+		"lfotype" "0"
+		"lforate" "0"
+		"lfomodvol" "0"
+		"lfomodpitch" "0"
+		"health" "10" // volume
+		"fadeoutsecs" "0"
+		"fadeinsecs" "0"
+		"cspinup" "0"
+		"classname" "ambient_generic"
+	}

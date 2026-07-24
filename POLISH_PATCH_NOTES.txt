@@ -1,0 +1,34 @@
+TF2 Bot Overhaul - Core Polish Patch
+Date: 2026-07-24
+
+Changed source:
+- addons/sourcemod/scripting/bot overhaul/bot_ai.sp
+
+Fixes:
+1. Fixed AI activation being overwritten by later players in the scan.
+   - The bot now starts disabled, enables when any qualifying human is found,
+     and stops scanning after a match.
+   - Client origin is calculated once per scan instead of once per human.
+
+2. Fixed MvM activation behavior.
+   - All RED bots now receive AI tweaks in MvM, matching the existing comment
+     and intended behavior, without requiring a nearby human for each bot.
+
+3. Fixed the disguised Spy condition call.
+   - TF2_IsPlayerInCondition was incorrectly receiving a boolean/team comparison
+     as the client index.
+   - The enemy-team comparison and disguised-condition check are now separate.
+
+4. Cached tf_bot_difficulty.
+   - The ConVar is found once during plugin startup rather than repeatedly inside
+     OnPlayerRunCmd.
+
+5. Clarified expert spy-check gating.
+   - Added explicit grouping while preserving the intended rule:
+     expert difficulty, and either not payload or payload setup has ended.
+
+Compatibility / scope:
+- No intentional weapon, timing, movement, or class balance changes.
+- Existing compiled bot_ai.smx is unchanged. Recompile bot_ai.sp with the
+  project's SourceMod compiler/includes before testing the patch in-game.
+- POLISH_PATCH.diff contains the exact source changes.
