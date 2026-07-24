@@ -33,9 +33,29 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          base64 -d automation/human-awareness-v1.patch.gz.b64 | gzip -d > /tmp/human-awareness-v1.patch
+          git show d9d7ca2ac3d7b4c22acca55b65afec72810bb8bf:automation/human-awareness-v1.patch.gz.b64 \
+            | base64 -d | gzip -d > /tmp/human-awareness-v1.patch
           git apply --check /tmp/human-awareness-v1.patch
           git apply /tmp/human-awareness-v1.patch
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('addons/sourcemod/scripting/bot overhaul/bot_ai.sp')
+          source = path.read_text()
+          source = source.replace('float forward[3];', 'float aimForward[3];')
+          source = source.replace(
+              'GetAngleVectors(viewAngles, forward, NULL_VECTOR, NULL_VECTOR);',
+              'GetAngleVectors(viewAngles, aimForward, NULL_VECTOR, NULL_VECTOR);'
+          )
+          source = source.replace(
+              'NormalizeVector(forward, forward);',
+              'NormalizeVector(aimForward, aimForward);'
+          )
+          source = source.replace(
+              'GetVectorDotProduct(direction, forward)',
+              'GetVectorDotProduct(direction, aimForward)'
+          )
+          path.write_text(source)
+          PY
           git diff --check
 
       - name: Install 32-bit compiler runtime
@@ -79,7 +99,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add automation/spcomp.log
-          git commit -m "Record awareness compile diagnostics" || true
+          git commit -m "Update awareness compile diagnostics" || true
           git push origin HEAD:feature/human-awareness-v1
 
       - name: Fail on compiler errors
@@ -93,10 +113,10 @@ jobs:
         run: |
           set -euo pipefail
           rm -f automation/human-awareness-v1.patch.gz.b64 automation/spcomp.log
+          rm -f .github/workflows/apply-human-awareness.yml
+          rmdir automation .github/workflows .github 2>/dev/null || true
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.md docs/HUMAN_AWARENESS_V1.md \
-            "addons/sourcemod/scripting/bot overhaul/bot_ai.sp" \
-            automation/human-awareness-v1.patch.gz.b64 automation/spcomp.log
+          git add -A
           git commit -m "Add human awareness v1"
           git push origin HEAD:feature/human-awareness-v1
