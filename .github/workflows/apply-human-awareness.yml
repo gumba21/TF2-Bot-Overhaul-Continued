@@ -54,6 +54,16 @@ jobs:
               'GetVectorDotProduct(direction, forward)',
               'GetVectorDotProduct(direction, aimForward)'
           )
+          for helper in ('moveForward', 'moveBackwards', 'moveSide', 'moveSide2'):
+              source = source.replace(
+                  f'float {helper}(float vel[3],float MaxSpeed)',
+                  f'void {helper}(float vel[3],float MaxSpeed)'
+              )
+          source = source.replace('\n\treturn vel;\n}', '\n}')
+          source = source.replace(
+              'vel = moveForward(vel,9000.0);',
+              'moveForward(vel,9000.0);'
+          )
           path.write_text(source)
           PY
           git diff --check
