@@ -2,24 +2,56 @@ SourcePawn Compiler 1.12.0.7246
 Copyright (c) 1997-2006 ITB CompuPhase
 Copyright (c) 2004-2024 AlliedModders LLC
 
-addons/sourcemod/scripting/bot overhaul/bot_ai.sp(2233) : error 001: expected token: ";", but found "forward"
-  2233 |         float forward[3];
+addons/sourcemod/scripting/bot overhaul/bot_ai.sp(23) : warning 241: scalar assignment to array is deprecated; use "{ <val>, ... }" instead
+    23 | bool ban_primary[MAXPLAYERS+1] = false;
+------------------------------------------^
+
+addons/sourcemod/scripting/bot overhaul/bot_ai.sp(24) : warning 241: scalar assignment to array is deprecated; use "{ <val>, ... }" instead
+    24 | bool ban_secondary[MAXPLAYERS+1] = false;
+--------------------------------------------^
+
+addons/sourcemod/scripting/bot overhaul/bot_ai.sp(25) : warning 241: scalar assignment to array is deprecated; use "{ <val>, ... }" instead
+    25 | bool ban_melee[MAXPLAYERS+1] = false;
+----------------------------------------^
+
+addons/sourcemod/scripting/bot overhaul/bot_ai.sp(26) : warning 241: scalar assignment to array is deprecated; use "{ <val>, ... }" instead
+    26 | bool SapTime[MAXPLAYERS+1] = false;
+--------------------------------------^
+
+addons/sourcemod/scripting/bot overhaul/bot_ai.sp(27) : warning 241: scalar assignment to array is deprecated; use "{ <val>, ... }" instead
+    27 | bool MedkitNear[MAXPLAYERS+1] = false;
+-----------------------------------------^
+
+addons/sourcemod/scripting/bot overhaul/bot_ai.sp(28) : warning 241: scalar assignment to array is deprecated; use "{ <val>, ... }" instead
+    28 | bool SpyAttack[MAXPLAYERS+1] = false;
+----------------------------------------^
+
+addons/sourcemod/scripting/bot overhaul/bot_ai.sp(29) : warning 241: scalar assignment to array is deprecated; use "{ <val>, ... }" instead
+    29 | bool ImproveAI[MAXPLAYERS+1] = false;
+----------------------------------------^
+
+addons/sourcemod/scripting/bot overhaul/bot_ai.sp(195) : error 450: no viable conversion from "float[3]" to "float"
+   195 |         return vel;
 -----------------^
 
-addons/sourcemod/scripting/bot overhaul/bot_ai.sp(2233) : error 029: invalid expression, assumed zero
-  2233 |         float forward[3];
------------------------^
+addons/sourcemod/scripting/bot overhaul/bot_ai.sp(201) : error 450: no viable conversion from "float[3]" to "float"
+   201 |         return vel;
+-----------------^
 
-addons/sourcemod/scripting/bot overhaul/bot_ai.sp(2253) : error 029: invalid expression, assumed zero
-  2253 |         GetAngleVectors(viewAngles, forward, NULL_VECTOR, NULL_VECTOR);
----------------------------------------------^
+addons/sourcemod/scripting/bot overhaul/bot_ai.sp(207) : error 450: no viable conversion from "float[3]" to "float"
+   207 |         return vel;
+-----------------^
 
-addons/sourcemod/scripting/bot overhaul/bot_ai.sp(2254) : error 029: invalid expression, assumed zero
-  2254 |         NormalizeVector(forward, forward);
----------------------------------^
+addons/sourcemod/scripting/bot overhaul/bot_ai.sp(213) : error 450: no viable conversion from "float[3]" to "float"
+   213 |         return vel;
+-----------------^
 
-addons/sourcemod/scripting/bot overhaul/bot_ai.sp(2256) : error 029: invalid expression, assumed zero
-  2256 |         float dot = GetVectorDotProduct(direction, forward);
-------------------------------------------------------------^
+addons/sourcemod/scripting/bot overhaul/bot_ai.sp(789) : warning 213: tag mismatch (expected "int", got "TFClassType")
+   789 |                                                 if(IsTargetInSightRange(client, EntSpy) && class == TFClass_Pyro || IsTargetInSightRange(client, EntSpy) && disguisetarget == client && disguiseclass == class || IsTargetInSightRange(client, EntSpy) && disguiseclass == 1 && IsClientMoving(EntSpy) || IsTargetInSightRange(client, EntSpy) && disguiseclass == 5)
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------^
+
+addons/sourcemod/scripting/bot overhaul/bot_ai.sp(1755) : error 450: no viable conversion from "float" to "float[3]"
+  1755 |                                                         vel = moveForward(vel,9000.0);
+---------------------------------------------------------------------^
 
 5 Errors.
