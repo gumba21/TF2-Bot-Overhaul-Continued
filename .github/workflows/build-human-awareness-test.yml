@@ -6,6 +6,13 @@ on:
       - feature/human-awareness-v1
     paths:
       - .github/workflows/build-human-awareness-test.yml
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - reopened
+      - synchronize
   workflow_dispatch:
 
 permissions:
