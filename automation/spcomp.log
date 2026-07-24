@@ -1,0 +1,25 @@
+SourcePawn Compiler 1.12.0.7246
+Copyright (c) 1997-2006 ITB CompuPhase
+Copyright (c) 2004-2024 AlliedModders LLC
+
+addons/sourcemod/scripting/bot overhaul/bot_ai.sp(2233) : error 001: expected token: ";", but found "forward"
+  2233 |         float forward[3];
+-----------------^
+
+addons/sourcemod/scripting/bot overhaul/bot_ai.sp(2233) : error 029: invalid expression, assumed zero
+  2233 |         float forward[3];
+-----------------------^
+
+addons/sourcemod/scripting/bot overhaul/bot_ai.sp(2253) : error 029: invalid expression, assumed zero
+  2253 |         GetAngleVectors(viewAngles, forward, NULL_VECTOR, NULL_VECTOR);
+---------------------------------------------^
+
+addons/sourcemod/scripting/bot overhaul/bot_ai.sp(2254) : error 029: invalid expression, assumed zero
+  2254 |         NormalizeVector(forward, forward);
+---------------------------------^
+
+addons/sourcemod/scripting/bot overhaul/bot_ai.sp(2256) : error 029: invalid expression, assumed zero
+  2256 |         float dot = GetVectorDotProduct(direction, forward);
+------------------------------------------------------------^
+
+5 Errors.
