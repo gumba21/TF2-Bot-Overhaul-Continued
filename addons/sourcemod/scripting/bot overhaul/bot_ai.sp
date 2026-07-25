@@ -28,6 +28,26 @@ bool MedkitNear[MAXPLAYERS+1] = false;
 bool SpyAttack[MAXPLAYERS+1] = false;
 bool ImproveAI[MAXPLAYERS+1] = false;
 
+enum HumanIntent
+{
+	HumanIntent_Hold = 0,
+	HumanIntent_Engage,
+	HumanIntent_Investigate,
+	HumanIntent_Retreat
+};
+
+enum HumanStimulus
+{
+	HumanStimulus_None = 0,
+	HumanStimulus_Visual,
+	HumanStimulus_Sound,
+	HumanStimulus_Damage
+};
+
+// Major Update 1: shared Human Foundation state.
+// Class-specific behavior still runs normally, but perception, personality,
+// decision cadence, and believable limitations are resolved here first.
+
 // Human-awareness state. These values sit underneath the class-specific logic so
 // every combat class shares the same reaction, target-lock, and memory rules.
 int g_awarenessTarget[MAXPLAYERS + 1];
@@ -47,6 +67,33 @@ float g_humanAimLastUpdate[MAXPLAYERS + 1];
 float g_humanAimSnapReactionUntil[MAXPLAYERS + 1];
 float g_humanSkillVariance[MAXPLAYERS + 1];
 
+// Per-life personality. Style traits remain varied at every difficulty, while
+// mechanical skill, gamesense, and teamwork trend upward with difficulty.
+bool g_humanPersonalityInitialized[MAXPLAYERS + 1];
+float g_traitConfidence[MAXPLAYERS + 1];
+float g_traitAggression[MAXPLAYERS + 1];
+float g_traitPatience[MAXPLAYERS + 1];
+float g_traitTeamwork[MAXPLAYERS + 1];
+float g_traitCreativity[MAXPLAYERS + 1];
+float g_traitGreed[MAXPLAYERS + 1];
+float g_traitMechanicalSkill[MAXPLAYERS + 1];
+float g_traitGamesense[MAXPLAYERS + 1];
+
+// Hearing, investigation, and decision state.
+HumanIntent g_humanIntent[MAXPLAYERS + 1];
+HumanIntent g_humanPendingIntent[MAXPLAYERS + 1];
+HumanStimulus g_humanStimulus[MAXPLAYERS + 1];
+int g_humanLastHeardTarget[MAXPLAYERS + 1];
+float g_humanSoundPosition[MAXPLAYERS + 1][3];
+float g_humanSoundMemoryUntil[MAXPLAYERS + 1];
+float g_humanDecisionUntil[MAXPLAYERS + 1];
+float g_humanNextDecisionAt[MAXPLAYERS + 1];
+float g_humanNextHearingAt[MAXPLAYERS + 1];
+float g_humanStrafeChangeAt[MAXPLAYERS + 1];
+float g_humanStrafeDirection[MAXPLAYERS + 1];
+float g_humanSearchOffset[MAXPLAYERS + 1];
+float g_humanSearchChangeAt[MAXPLAYERS + 1];
+
 ConVar g_btEnable;
 ConVar g_botDifficulty;
 ConVar g_humanAwarenessEnable;
@@ -56,6 +103,13 @@ ConVar g_humanMemoryMin;
 ConVar g_humanMemoryMax;
 ConVar g_humanTargetLockMin;
 ConVar g_humanTargetLockMax;
+ConVar g_humanDifficultyOverride;
+ConVar g_humanFieldOfView;
+ConVar g_humanHearingRadius;
+ConVar g_humanThinkMin;
+ConVar g_humanThinkMax;
+ConVar g_humanPersonalitySpread;
+ConVar g_humanUnfairOmniscience;
 
 public Plugin myinfo = {
 	name = "Bot AI",
@@ -69,6 +123,7 @@ public void OnPluginStart()
 	HookEvent("teamplay_round_start", SetupStarted);
 	HookEvent("teamplay_setup_finished", RoundStarted);
 	HookEvent("player_hurt", PlayerHurt);
+	HookEvent("player_spawn", PlayerSpawned);
 	g_btEnable = CreateConVar("tf_bot_ai_tweaks", "1", "Enables many ai tweaks to make bots smarter. This is performance costly. Default = 1.", _, true, 0.0, true, 1.0);
 	g_humanAwarenessEnable = CreateConVar("tf_bot_human_awareness", "1", "Adds reaction delay, target memory, target commitment, and humanized turning to improved bots.", _, true, 0.0, true, 1.0);
 	g_humanReactionMin = CreateConVar("tf_bot_human_reaction_min", "0.12", "Minimum visual reaction delay before a bot accepts a new enemy target.", _, true, 0.02, true, 1.5);
@@ -77,6 +132,13 @@ public void OnPluginStart()
 	g_humanMemoryMax = CreateConVar("tf_bot_human_memory_max", "1.85", "Maximum time a bot remembers the last place it saw an enemy.", _, true, 0.0, true, 8.0);
 	g_humanTargetLockMin = CreateConVar("tf_bot_human_target_lock_min", "0.80", "Minimum time a bot prefers its current visible target before switching.", _, true, 0.0, true, 5.0);
 	g_humanTargetLockMax = CreateConVar("tf_bot_human_target_lock_max", "2.20", "Maximum time a bot prefers its current visible target before switching.", _, true, 0.0, true, 8.0);
+	g_humanDifficultyOverride = CreateConVar("tf_bot_human_difficulty", "-1", "Human Foundation difficulty override: -1 follows tf_bot_difficulty, 0-3 are human difficulties, and 4 is Unfair.", _, true, -1.0, true, 4.0);
+	g_humanFieldOfView = CreateConVar("tf_bot_human_fov", "155.0", "Base horizontal field of view used to discover new enemies.", _, true, 60.0, true, 360.0);
+	g_humanHearingRadius = CreateConVar("tf_bot_human_hearing", "1050.0", "Base hearing radius for gunfire and nearby movement.", _, true, 0.0, true, 5000.0);
+	g_humanThinkMin = CreateConVar("tf_bot_human_think_min", "0.10", "Minimum hesitation before committing to a major intent change.", _, true, 0.0, true, 2.0);
+	g_humanThinkMax = CreateConVar("tf_bot_human_think_max", "0.38", "Maximum hesitation before committing to a major intent change.", _, true, 0.0, true, 3.0);
+	g_humanPersonalitySpread = CreateConVar("tf_bot_human_personality_spread", "0.32", "Variation applied to each bot's personality traits.", _, true, 0.0, true, 0.5);
+	g_humanUnfairOmniscience = CreateConVar("tf_bot_human_unfair_omniscience", "1", "Allows Human difficulty 4 to ignore FOV and line of sight while still obeying normal movement and weapon rules.", _, true, 0.0, true, 1.0);
 	g_botDifficulty = FindConVar("tf_bot_difficulty");
 
 	for (int client = 1; client <= MaxClients; client++)
@@ -100,6 +162,19 @@ public Action SetupStarted(Handle event, const char[] name, bool dontBroadcast)
 	}
 }
 
+
+public Action PlayerSpawned(Handle event, const char[] name, bool dontBroadcast)
+{
+	int client = GetClientOfUserId(GetEventInt(event, "userid"));
+	if (IsValidClient(client) && IsFakeClient(client))
+	{
+		GenerateHumanPersonality(client);
+		ResetHumanAwareness(client);
+	}
+
+	return Plugin_Continue;
+}
+
 public Action PlayerHurt(Handle event, const char[] name, bool dontBroadcast)
 {
 	int victim = GetClientOfUserId(GetEventInt(event, "userid"));
@@ -119,8 +194,10 @@ public Action PlayerHurt(Handle event, const char[] name, bool dontBroadcast)
 	// current field of view, but it still receives a short human reaction delay.
 	g_awarenessTarget[victim] = attacker;
 	g_awarenessTargetVisible[victim] = false;
+	g_humanStimulus[victim] = HumanStimulus_Damage;
 	BeginAwarenessReaction(victim, attacker, 0.35);
 	RememberAwarenessTarget(victim, attacker);
+	QueueHumanIntent(victim, HumanIntent_Engage, 0.45);
 
 	return Plugin_Continue;
 }
@@ -292,6 +369,7 @@ public bool ExcludeFilter(int entity, int contentsMask, any iExclude)
 public void OnClientPutInServer(int client) 
 {
     SDKHook(client, SDKHook_WeaponSwitch, OnWeaponSwitch);
+	g_humanPersonalityInitialized[client] = false;
 	ResetHumanAwareness(client);
 	
 	if(!IsFakeClient(client))
@@ -612,6 +690,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 		float clientEyes[3];
 		GetClientEyePosition(client, clientEyes);
 		int Ent = UpdateHumanAwareness(client);
+		UpdateHumanFoundationDecision(client, Ent);
 
 		if(IsValidEntity(Ent))
 		{
@@ -2046,6 +2125,10 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			}
 		}
 		
+		// Class logic proposes an action; the shared foundation then applies the
+		// bot's current intent and human limitations without replacing that class logic.
+		ApplyHumanFoundationDecision(client, buttons, vel, angles);
+
 		// Apply the shared view/reaction layer after class logic has selected its
 		// movement and buttons. This catches snap turns from the stock bot brain too.
 		HumanizeAwarenessCommand(client, buttons, angles);
@@ -2081,11 +2164,32 @@ void ResetHumanAwareness(int client)
 	g_humanAimOffsetUntil[client] = 0.0;
 	g_humanAimLastUpdate[client] = 0.0;
 	g_humanAimSnapReactionUntil[client] = 0.0;
-	g_humanSkillVariance[client] = GetRandomFloat(0.88, 1.12);
+	g_humanLastHeardTarget[client] = -1;
+	g_humanSoundMemoryUntil[client] = 0.0;
+	g_humanDecisionUntil[client] = 0.0;
+	g_humanNextDecisionAt[client] = 0.0;
+	g_humanNextHearingAt[client] = 0.0;
+	g_humanStrafeChangeAt[client] = 0.0;
+	g_humanStrafeDirection[client] = 1.0;
+	g_humanSearchOffset[client] = 0.0;
+	g_humanSearchChangeAt[client] = 0.0;
+	g_humanIntent[client] = HumanIntent_Hold;
+	g_humanPendingIntent[client] = HumanIntent_Hold;
+	g_humanStimulus[client] = HumanStimulus_None;
+
+	if (IsValidClient(client) && IsFakeClient(client) && !g_humanPersonalityInitialized[client])
+	{
+		GenerateHumanPersonality(client);
+	}
+
+	g_humanSkillVariance[client] = g_humanPersonalityInitialized[client]
+		? 1.25 - (g_traitMechanicalSkill[client] * 0.35)
+		: 1.0;
 
 	for (int axis = 0; axis < 3; axis++)
 	{
 		g_awarenessLastKnownPos[client][axis] = 0.0;
+		g_humanSoundPosition[client][axis] = 0.0;
 		g_humanViewAngles[client][axis] = 0.0;
 	}
 
@@ -2093,19 +2197,274 @@ void ResetHumanAwareness(int client)
 	g_humanAimOffset[client][1] = 0.0;
 }
 
-bool IsHumanAwarenessEnemy(int client, int target)
+
+float ClampHuman01(float value)
+{
+	if (value < 0.0)
+	{
+		return 0.0;
+	}
+	if (value > 1.0)
+	{
+		return 1.0;
+	}
+	return value;
+}
+
+int GetHumanDifficultyLevel()
+{
+	if (g_humanDifficultyOverride != null && g_humanDifficultyOverride.IntValue >= 0)
+	{
+		int overrideLevel = g_humanDifficultyOverride.IntValue;
+		return overrideLevel > 4 ? 4 : overrideLevel;
+	}
+
+	if (g_botDifficulty == null)
+	{
+		return 1;
+	}
+
+	int level = g_botDifficulty.IntValue;
+	if (level < 0)
+	{
+		return 0;
+	}
+	return level > 3 ? 3 : level;
+}
+
+float RandomHumanTrait(float center, float spread)
+{
+	return ClampHuman01(GetRandomFloat(center - spread, center + spread));
+}
+
+void GenerateHumanPersonality(int client)
+{
+	if (client < 1 || client > MaxClients)
+	{
+		return;
+	}
+
+	int difficulty = GetHumanDifficultyLevel();
+	float spread = g_humanPersonalitySpread == null ? 0.32 : g_humanPersonalitySpread.FloatValue;
+	float skillCenter = 0.34 + (float(difficulty) * 0.15);
+	if (skillCenter > 0.92)
+	{
+		skillCenter = 0.92;
+	}
+
+	// Style remains individual. These are not "good" or "bad" traits by themselves.
+	g_traitConfidence[client] = RandomHumanTrait(0.52 + (float(difficulty) * 0.04), spread);
+	g_traitAggression[client] = RandomHumanTrait(0.50, spread);
+	g_traitPatience[client] = RandomHumanTrait(0.50, spread);
+	g_traitCreativity[client] = RandomHumanTrait(0.50, spread);
+	g_traitGreed[client] = RandomHumanTrait(0.50, spread);
+
+	// These determine execution and decision quality, so difficulty raises their floor.
+	g_traitTeamwork[client] = RandomHumanTrait(skillCenter, spread * 0.72);
+	g_traitMechanicalSkill[client] = RandomHumanTrait(skillCenter, spread * 0.62);
+	g_traitGamesense[client] = RandomHumanTrait(skillCenter, spread * 0.70);
+
+	if (difficulty >= 4)
+	{
+		g_traitConfidence[client] = 1.0;
+		g_traitTeamwork[client] = 1.0;
+		g_traitMechanicalSkill[client] = 1.0;
+		g_traitGamesense[client] = 1.0;
+	}
+
+	g_humanPersonalityInitialized[client] = true;
+	g_humanSkillVariance[client] = 1.25 - (g_traitMechanicalSkill[client] * 0.35);
+}
+
+bool IsHumanAwarenessOpponent(int client, int target)
 {
 	if (client < 1 || client > MaxClients || target < 1 || target > MaxClients)
 	{
 		return false;
 	}
+	if (!IsValidClient(client) || !IsValidClient(target) || client == target || !IsPlayerAlive(target))
+	{
+		return false;
+	}
+	return GetClientTeam(client) != GetClientTeam(target);
+}
 
-	if (!IsValidClient(client) || !IsValidClient(target) || client == target)
+float GetHumanThinkDuration(int client)
+{
+	if (GetHumanDifficultyLevel() >= 4)
+	{
+		return 0.0;
+	}
+
+	float minimum = g_humanThinkMin.FloatValue;
+	float maximum = g_humanThinkMax.FloatValue;
+	if (maximum < minimum)
+	{
+		maximum = minimum;
+	}
+
+	float duration = GetRandomFloat(minimum, maximum);
+	duration *= GetAwarenessDifficultyScale();
+	duration *= 1.30 - (g_traitGamesense[client] * 0.52);
+	duration *= 1.12 - (g_traitCreativity[client] * 0.18);
+	return duration < 0.0 ? 0.0 : duration;
+}
+
+void QueueHumanIntent(int client, HumanIntent intent, float delayScale = 1.0)
+{
+	if (g_humanPendingIntent[client] == intent && g_humanIntent[client] == intent)
+	{
+		return;
+	}
+
+	g_humanPendingIntent[client] = intent;
+	g_humanDecisionUntil[client] = GetGameTime() + (GetHumanThinkDuration(client) * delayScale);
+}
+
+int CountNearbyHumanAllies(int client, const float position[3], float radius)
+{
+	int count = 0;
+	for (int teammate = 1; teammate <= MaxClients; teammate++)
+	{
+		if (teammate == client || !IsValidClient(teammate) || !IsPlayerAlive(teammate)
+			|| GetClientTeam(teammate) != GetClientTeam(client))
+		{
+			continue;
+		}
+
+		float teammatePos[3];
+		GetClientAbsOrigin(teammate, teammatePos);
+		if (GetVectorDistance(teammatePos, position) <= radius)
+		{
+			count++;
+		}
+	}
+	return count;
+}
+
+bool GetHumanInvestigationPosition(int client, float output[3])
+{
+	float now = GetGameTime();
+	if (g_awarenessTarget[client] != -1 && now < g_awarenessMemoryUntil[client])
+	{
+		for (int axis = 0; axis < 3; axis++)
+		{
+			output[axis] = g_awarenessLastKnownPos[client][axis];
+		}
+		return true;
+	}
+
+	if (now < g_humanSoundMemoryUntil[client])
+	{
+		for (int axis = 0; axis < 3; axis++)
+		{
+			output[axis] = g_humanSoundPosition[client][axis];
+		}
+		return true;
+	}
+
+	return false;
+}
+
+bool CanHumanAwarenessHear(int client, int target, float &soundScore, float soundPosition[3])
+{
+	if (!IsHumanAwarenessOpponent(client, target))
 	{
 		return false;
 	}
 
-	if (!IsPlayerAlive(target) || GetClientTeam(client) == GetClientTeam(target))
+	int buttons = GetClientButtons(target);
+	bool firing = (buttons & IN_ATTACK) != 0 || (buttons & IN_ATTACK2) != 0;
+
+	float targetVelocity[3];
+	GetEntPropVector(target, Prop_Data, "m_vecAbsVelocity", targetVelocity);
+	float movementSpeed = GetVectorLength(targetVelocity);
+	bool loudMovement = movementSpeed > 210.0;
+	if (!firing && !loudMovement)
+	{
+		return false;
+	}
+
+	float hearing = g_humanHearingRadius.FloatValue;
+	if (firing)
+	{
+		hearing *= 1.20;
+	}
+	else
+	{
+		hearing *= 0.48;
+	}
+
+	switch (GetHumanDifficultyLevel())
+	{
+		case 0: hearing *= 0.68;
+		case 1: hearing *= 0.84;
+		case 2: hearing *= 1.0;
+		case 3: hearing *= 1.18;
+		case 4: hearing = 5000.0;
+	}
+	hearing *= 0.82 + (g_traitGamesense[client] * 0.30);
+
+	float clientPos[3];
+	GetClientEyePosition(client, clientPos);
+	GetClientEyePosition(target, soundPosition);
+	float distance = GetVectorDistance(clientPos, soundPosition);
+	if (distance > hearing)
+	{
+		return false;
+	}
+
+	soundScore = hearing <= 0.0 ? 1.0 : distance / hearing;
+	if (firing)
+	{
+		soundScore -= 0.18;
+	}
+	return true;
+}
+
+int FindBestHumanAwarenessSound(int client, float output[3])
+{
+	int bestTarget = -1;
+	float bestScore = 9999.0;
+
+	for (int target = 1; target <= MaxClients; target++)
+	{
+		float score;
+		float soundPos[3];
+		if (!CanHumanAwarenessHear(client, target, score, soundPos) || score >= bestScore)
+		{
+			continue;
+		}
+
+		bestTarget = target;
+		bestScore = score;
+		for (int axis = 0; axis < 3; axis++)
+		{
+			output[axis] = soundPos[axis];
+		}
+	}
+
+	return bestTarget;
+}
+
+void RememberHumanSound(int client, int target, const float position[3])
+{
+	for (int axis = 0; axis < 3; axis++)
+	{
+		g_humanSoundPosition[client][axis] = position[axis];
+	}
+	g_humanLastHeardTarget[client] = target;
+	float duration = GetAwarenessMemoryDuration(client) * (0.48 + (g_traitPatience[client] * 0.30));
+	g_humanSoundMemoryUntil[client] = GetGameTime() + duration;
+	if (!g_awarenessTargetVisible[client])
+	{
+		g_humanStimulus[client] = HumanStimulus_Sound;
+	}
+}
+
+bool IsHumanAwarenessEnemy(int client, int target)
+{
+	if (!IsHumanAwarenessOpponent(client, target))
 	{
 		return false;
 	}
@@ -2120,24 +2479,24 @@ bool IsHumanAwarenessEnemy(int client, int target)
 
 float GetAwarenessDifficultyScale()
 {
-	if (g_botDifficulty == null)
+	switch (GetHumanDifficultyLevel())
 	{
-		return 1.0;
-	}
-
-	switch (g_botDifficulty.IntValue)
-	{
-		case 0: return 1.45;
-		case 1: return 1.18;
+		case 0: return 1.55;
+		case 1: return 1.20;
 		case 2: return 0.95;
-		case 3: return 0.78;
+		case 3: return 0.70;
+		case 4: return 0.0;
 	}
-
 	return 1.0;
 }
 
 float GetAwarenessReactionDelay(int client, int target)
 {
+	if (GetHumanDifficultyLevel() >= 4)
+	{
+		return 0.0;
+	}
+
 	float minimum = g_humanReactionMin.FloatValue;
 	float maximum = g_humanReactionMax.FloatValue;
 	if (maximum < minimum)
@@ -2148,6 +2507,7 @@ float GetAwarenessReactionDelay(int client, int target)
 	float delay = GetRandomFloat(minimum, maximum);
 	delay *= GetAwarenessDifficultyScale();
 	delay *= g_humanSkillVariance[client];
+	delay *= 1.20 - (g_traitGamesense[client] * 0.28);
 
 	float clientPos[3];
 	float targetPos[3];
@@ -2175,6 +2535,11 @@ float GetAwarenessMemoryDuration(int client)
 		maximum = minimum;
 	}
 
+	if (GetHumanDifficultyLevel() >= 4)
+	{
+		return 12.0;
+	}
+
 	float duration = GetRandomFloat(minimum, maximum);
 	float difficulty = GetAwarenessDifficultyScale();
 	if (difficulty > 1.5)
@@ -2182,7 +2547,11 @@ float GetAwarenessMemoryDuration(int client)
 		difficulty = 1.5;
 	}
 
-	return duration * (2.0 - difficulty) * g_humanSkillVariance[client];
+	float personalityMemory = 0.52
+		+ (g_traitPatience[client] * 0.58)
+		+ (g_traitGamesense[client] * 0.28)
+		+ (g_traitGreed[client] * 0.18);
+	return duration * (2.0 - difficulty) * personalityMemory;
 }
 
 float GetAwarenessTargetLockDuration(int client)
@@ -2194,7 +2563,17 @@ float GetAwarenessTargetLockDuration(int client)
 		maximum = minimum;
 	}
 
-	return GetRandomFloat(minimum, maximum) * g_humanSkillVariance[client];
+	if (GetHumanDifficultyLevel() >= 4)
+	{
+		return 0.30;
+	}
+
+	float commitment = 0.52
+		+ (g_traitPatience[client] * 0.40)
+		+ (g_traitAggression[client] * 0.34)
+		+ (g_traitGreed[client] * 0.24)
+		- (g_traitGamesense[client] * 0.16);
+	return GetRandomFloat(minimum, maximum) * commitment;
 }
 
 void RememberAwarenessTarget(int client, int target)
@@ -2219,6 +2598,8 @@ void BeginAwarenessReaction(int client, int target, float delayScale = 1.0)
 	{
 		g_awarenessPendingTarget[client] = target;
 		g_awarenessReactionUntil[client] = GetGameTime() + (GetAwarenessReactionDelay(client, target) * delayScale);
+		g_humanStimulus[client] = HumanStimulus_Visual;
+		QueueHumanIntent(client, HumanIntent_Engage, delayScale);
 	}
 }
 
@@ -2274,16 +2655,38 @@ bool CanHumanAwarenessSee(int client, int target, bool currentTarget = false)
 	GetClientEyePosition(client, clientPos);
 	GetClientEyePosition(target, targetPos);
 
+	if (GetHumanDifficultyLevel() >= 4 && g_humanUnfairOmniscience.IntValue > 0)
+	{
+		return true;
+	}
+
 	if (!IsPointVisible(clientPos, targetPos))
 	{
 		return false;
 	}
 
 	float distance = GetVectorDistance(clientPos, targetPos);
-	float fieldOfView = currentTarget ? 205.0 : 155.0;
+	float fieldOfView = g_humanFieldOfView.FloatValue;
+	switch (GetHumanDifficultyLevel())
+	{
+		case 0: fieldOfView *= 0.72;
+		case 1: fieldOfView *= 0.86;
+		case 2: fieldOfView *= 1.0;
+		case 3: fieldOfView *= 1.12;
+		case 4: fieldOfView = 360.0;
+	}
+	fieldOfView *= 0.84 + (g_traitGamesense[client] * 0.24);
+	if (currentTarget)
+	{
+		fieldOfView += 42.0;
+	}
 	if (distance < 275.0)
 	{
-		fieldOfView = currentTarget ? 320.0 : 250.0;
+		fieldOfView += 90.0;
+	}
+	if (fieldOfView > 360.0)
+	{
+		fieldOfView = 360.0;
 	}
 
 	return IsTargetInsideHumanFov(client, target, fieldOfView);
@@ -2307,6 +2710,20 @@ int FindBestHumanAwarenessEnemy(int client)
 		float targetPos[3];
 		GetClientEyePosition(target, targetPos);
 		float score = GetVectorDistance(clientPos, targetPos);
+
+		int targetHealth = GetHealth(target);
+		int targetMaxHealth = GetEntProp(target, Prop_Data, "m_iMaxHealth");
+		float targetHealthRatio = targetMaxHealth > 0 ? float(targetHealth) / float(targetMaxHealth) : 1.0;
+		score -= (1.0 - targetHealthRatio) * 260.0 * g_traitGreed[client];
+
+		TFClassType targetClass = TF2_GetPlayerClass(target);
+		if (targetClass == TFClass_Medic)
+		{
+			score -= 180.0 * g_traitGamesense[client];
+		}
+
+		int nearbyAllies = CountNearbyHumanAllies(client, targetPos, 550.0);
+		score -= float(nearbyAllies) * 55.0 * g_traitTeamwork[client];
 
 		// Prefer sticking with the current threat instead of switching every tick.
 		if (target == g_awarenessTarget[client])
@@ -2358,7 +2775,19 @@ int UpdateHumanAwareness(int client)
 	if (now >= g_awarenessNextScanAt[client])
 	{
 		g_awarenessCachedCandidate[client] = FindBestHumanAwarenessEnemy(client);
-		g_awarenessNextScanAt[client] = now + GetRandomFloat(0.08, 0.14);
+		float scanDelay = GetHumanDifficultyLevel() >= 4 ? 0.02 : GetRandomFloat(0.08, 0.14);
+		g_awarenessNextScanAt[client] = now + scanDelay;
+	}
+
+	if (!currentVisible && now >= g_humanNextHearingAt[client])
+	{
+		float soundPos[3];
+		int heardTarget = FindBestHumanAwarenessSound(client, soundPos);
+		if (heardTarget != -1)
+		{
+			RememberHumanSound(client, heardTarget, soundPos);
+		}
+		g_humanNextHearingAt[client] = now + (GetHumanDifficultyLevel() >= 4 ? 0.03 : GetRandomFloat(0.12, 0.22));
 	}
 
 	int candidate = g_awarenessCachedCandidate[client];
@@ -2382,6 +2811,7 @@ int UpdateHumanAwareness(int client)
 				g_awarenessTarget[client] = candidate;
 				g_awarenessPendingTarget[client] = -1;
 				g_awarenessTargetVisible[client] = true;
+				g_humanStimulus[client] = HumanStimulus_Visual;
 				g_awarenessTargetLockUntil[client] = now + GetAwarenessTargetLockDuration(client);
 				RememberAwarenessTarget(client, candidate);
 				currentTarget = candidate;
@@ -2411,19 +2841,183 @@ int UpdateHumanAwareness(int client)
 	return -1;
 }
 
+
+float GetHumanThreatValue(int target)
+{
+	if (!IsValidClient(target))
+	{
+		return 0.0;
+	}
+
+	float threat = 0.25;
+	switch (TF2_GetPlayerClass(target))
+	{
+		case TFClass_Heavy: threat += 0.48;
+		case TFClass_Soldier: threat += 0.38;
+		case TFClass_DemoMan: threat += 0.38;
+		case TFClass_Pyro: threat += 0.30;
+		case TFClass_Sniper: threat += 0.24;
+		case TFClass_Scout: threat += 0.18;
+	}
+
+	if (TF2_IsPlayerInCondition(target, TFCond_Ubercharged))
+	{
+		threat += 1.0;
+	}
+	else if (TF2_IsPlayerInCondition(target, TFCond_Kritzkrieged)
+		|| TF2_IsPlayerInCondition(target, TFCond_Buffed))
+	{
+		threat += 0.45;
+	}
+	return threat;
+}
+
+void UpdateHumanFoundationDecision(int client, int visibleTarget)
+{
+	if (g_humanAwarenessEnable == null || g_humanAwarenessEnable.IntValue == 0)
+	{
+		return;
+	}
+
+	float now = GetGameTime();
+	if (now >= g_humanDecisionUntil[client] && g_humanIntent[client] != g_humanPendingIntent[client])
+	{
+		g_humanIntent[client] = g_humanPendingIntent[client];
+	}
+
+	if (now < g_humanNextDecisionAt[client] || now < g_humanDecisionUntil[client])
+	{
+		return;
+	}
+
+	HumanIntent desiredIntent = HumanIntent_Hold;
+	if (IsHumanAwarenessEnemy(client, visibleTarget) && g_awarenessTargetVisible[client])
+	{
+		int maxHealth = GetEntProp(client, Prop_Data, "m_iMaxHealth");
+		float healthRatio = maxHealth > 0 ? float(GetHealth(client)) / float(maxHealth) : 1.0;
+		int targetMaxHealth = GetEntProp(visibleTarget, Prop_Data, "m_iMaxHealth");
+		float targetHealthRatio = targetMaxHealth > 0 ? float(GetHealth(visibleTarget)) / float(targetMaxHealth) : 1.0;
+
+		float targetPos[3];
+		GetClientAbsOrigin(visibleTarget, targetPos);
+		int nearbyAllies = CountNearbyHumanAllies(client, targetPos, 650.0);
+
+		float threat = GetHumanThreatValue(visibleTarget);
+		float risk = (1.0 - healthRatio) * 1.45;
+		risk += threat * (0.48 + (g_traitGamesense[client] * 0.52));
+		risk -= g_traitConfidence[client] * 0.52;
+		risk -= float(nearbyAllies) * 0.10 * g_traitTeamwork[client];
+
+		float reward = g_traitAggression[client] * 0.62;
+		reward += g_traitConfidence[client] * 0.42;
+		reward += (1.0 - targetHealthRatio) * 0.82 * g_traitGreed[client];
+		if (TF2_IsPlayerInCondition(client, TFCond_Ubercharged)
+			|| TF2_IsPlayerInCondition(client, TFCond_Kritzkrieged))
+		{
+			reward += 1.0;
+		}
+
+		// High confidence/aggression with weak gamesense naturally creates
+		// overcommits; strong gamesense notices danger and retreats earlier.
+		desiredIntent = risk > reward + 0.34 ? HumanIntent_Retreat : HumanIntent_Engage;
+	}
+	else
+	{
+		float investigationPos[3];
+		if (GetHumanInvestigationPosition(client, investigationPos))
+		{
+			float curiosity = g_traitPatience[client] * 0.38
+				+ g_traitCreativity[client] * 0.34
+				+ g_traitConfidence[client] * 0.14
+				+ g_traitGreed[client] * 0.20;
+			desiredIntent = curiosity >= 0.42 ? HumanIntent_Investigate : HumanIntent_Hold;
+		}
+	}
+
+	if (desiredIntent != g_humanIntent[client])
+	{
+		QueueHumanIntent(client, desiredIntent);
+	}
+	else
+	{
+		g_humanPendingIntent[client] = desiredIntent;
+	}
+
+	float cadence = GetHumanDifficultyLevel() >= 4 ? 0.04 : GetRandomFloat(0.18, 0.42);
+	cadence *= 1.18 - (g_traitGamesense[client] * 0.30);
+	g_humanNextDecisionAt[client] = now + cadence;
+}
+
+void ApplyHumanFoundationDecision(int client, int &buttons, float vel[3], float angles[3])
+{
+	if (g_humanAwarenessEnable == null || g_humanAwarenessEnable.IntValue == 0)
+	{
+		return;
+	}
+
+	float now = GetGameTime();
+	TFClassType class = TF2_GetPlayerClass(client);
+	bool thinking = now < g_humanDecisionUntil[client];
+
+	if (thinking && !g_awarenessTargetVisible[client]
+		&& class != TFClass_Medic && class != TFClass_Engineer)
+	{
+		buttons &= ~IN_ATTACK;
+	}
+
+	switch (g_humanIntent[client])
+	{
+		case HumanIntent_Retreat:
+		{
+			if (g_awarenessTargetVisible[client])
+			{
+				float retreatSpeed = 255.0 + (g_traitGamesense[client] * 125.0);
+				moveBackwards(vel, retreatSpeed);
+
+				if (now >= g_humanStrafeChangeAt[client])
+				{
+					g_humanStrafeDirection[client] = GetRandomInt(0, 1) == 0 ? -1.0 : 1.0;
+					g_humanStrafeChangeAt[client] = now + GetRandomFloat(0.35, 0.90);
+				}
+				vel[1] = g_humanStrafeDirection[client] * (75.0 + (g_traitCreativity[client] * 165.0));
+			}
+		}
+
+		case HumanIntent_Investigate:
+		{
+			float investigatePos[3];
+			if (!MedkitNear[client] && GetHumanInvestigationPosition(client, investigatePos))
+			{
+				float clientPos[3];
+				GetClientAbsOrigin(client, clientPos);
+				float distance = GetVectorDistance(clientPos, investigatePos);
+				float chaseDrive = g_traitAggression[client] + g_traitGreed[client]
+					+ g_traitCreativity[client] - g_traitGamesense[client];
+
+				// Greedy, aggressive, or creative bots investigate harder. Patient or
+				// cautious bots may hold the angle instead, producing natural variation.
+				if (distance > 145.0 && chaseDrive > 0.65)
+				{
+					TF2_MoveTo(client, investigatePos, vel, angles);
+				}
+			}
+		}
+	}
+}
+
 float GetHumanTurnSpeed(int client, bool reacting, bool fighting, bool remembering)
 {
 	float speed;
-	int difficulty = g_botDifficulty == null ? 1 : g_botDifficulty.IntValue;
-
-	switch (difficulty)
+	switch (GetHumanDifficultyLevel())
 	{
-		case 0: speed = 250.0;
-		case 1: speed = 360.0;
+		case 0: speed = 230.0;
+		case 1: speed = 350.0;
 		case 2: speed = 500.0;
-		case 3: speed = 680.0;
-		default: speed = 360.0;
+		case 3: speed = 720.0;
+		case 4: speed = 5000.0;
+		default: speed = 350.0;
 	}
+	speed *= 0.72 + (g_traitMechanicalSkill[client] * 0.38);
 
 	if (reacting)
 	{
@@ -2492,7 +3086,8 @@ void HumanizeAwarenessCommand(int client, int &buttons, float angles[3])
 	g_humanAimLastUpdate[client] = now;
 
 	bool fighting = g_awarenessTarget[client] != -1 && g_awarenessTargetVisible[client];
-	bool remembering = !fighting && g_awarenessTarget[client] != -1 && now < g_awarenessMemoryUntil[client];
+	float investigationPos[3];
+	bool remembering = !fighting && GetHumanInvestigationPosition(client, investigationPos);
 
 	float desiredAngles[3];
 	desiredAngles[0] = angles[0];
@@ -2519,7 +3114,20 @@ void HumanizeAwarenessCommand(int client, int &buttons, float angles[3])
 
 	if (remembering)
 	{
-		GetAnglesToAwarenessPosition(client, g_awarenessLastKnownPos[client], desiredAngles);
+		GetAnglesToAwarenessPosition(client, investigationPos, desiredAngles);
+
+		float clientPos[3];
+		GetClientAbsOrigin(client, clientPos);
+		if (GetVectorDistance(clientPos, investigationPos) < 190.0)
+		{
+			if (now >= g_humanSearchChangeAt[client])
+			{
+				g_humanSearchOffset[client] = GetRandomFloat(-48.0, 48.0)
+					* (0.55 + g_traitCreativity[client]);
+				g_humanSearchChangeAt[client] = now + GetRandomFloat(0.35, 0.85);
+			}
+			desiredAngles[1] += g_humanSearchOffset[client];
+		}
 	}
 
 	if (fighting)
@@ -2541,9 +3149,10 @@ void HumanizeAwarenessCommand(int client, int &buttons, float angles[3])
 		}
 		if (now >= g_humanAimOffsetUntil[client])
 		{
-			float errorScale = GetAwarenessDifficultyScale();
-			g_humanAimOffset[client][0] = GetRandomFloat(-0.65, 0.65) * errorScale;
-			g_humanAimOffset[client][1] = GetRandomFloat(-0.90, 0.90) * errorScale;
+			float errorScale = GetAwarenessDifficultyScale()
+				* (1.28 - (g_traitMechanicalSkill[client] * 0.88));
+			g_humanAimOffset[client][0] = GetRandomFloat(-0.75, 0.75) * errorScale;
+			g_humanAimOffset[client][1] = GetRandomFloat(-1.05, 1.05) * errorScale;
 			g_humanAimOffsetUntil[client] = now + GetRandomFloat(0.22, 0.48);
 		}
 
