@@ -48,7 +48,7 @@ jobs:
 
           bot_names = root / 'automaticbotnames.sp'
           text = bot_names.read_text(encoding='utf-8')
-          text = text.replace('Handle bf, const players[], int playersNum', 'Handle bf, const int players[], int playersNum')
+          text = text.replace('Handle bf, const players[], int playersNum', 'Handle bf, const int[] players, int playersNum')
           bot_names.write_text(text, encoding='utf-8')
           PY
             git diff --check
