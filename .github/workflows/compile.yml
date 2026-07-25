@@ -8,7 +8,7 @@ on:
       - 'feature/**'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   compile:
@@ -46,3 +46,16 @@ jobs:
           test -f tf/addons/sourcemod/plugins/disabled/tf2botchatter.smx
           test "$(find 'tf/addons/sourcemod/plugins/bot overhaul' -maxdepth 1 -name '*.smx' | wc -l)" -eq 22
           test "$(find tf/addons/sourcemod/plugins/disabled -maxdepth 1 -name '*.smx' | wc -l)" -eq 2
+
+      - name: Publish Battlefield Knowledge deployment binary
+        if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --force "tf/addons/sourcemod/plugins/bot overhaul/bot_knowledge.smx"
+          if ! git diff --cached --quiet; then
+            git commit -m "Build Battlefield Knowledge plugin"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
