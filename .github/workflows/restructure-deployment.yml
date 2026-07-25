@@ -67,6 +67,11 @@ jobs:
                   text = text.replace(f'vel = {helper}(', f'{helper}(')
               text = '\n'.join(line for line in text.split('\n') if line.strip() != 'return vel;')
               path.write_text(text, encoding='utf-8')
+
+          missions = root / 'GiveBotsLoadout_MISSIONS.sp'
+          text = missions.read_text(encoding='utf-8')
+          text = text.replace('char name[13] = "The Commander";', 'char name[14] = "The Commander";')
+          missions.write_text(text, encoding='utf-8')
           PY
             git diff --check
           } 2>&1 | tee /tmp/restructure-transform.log
