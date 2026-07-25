@@ -1,7 +1,9 @@
-# state|source basename|output basename
+# state|source path relative to scripting/bot overhaul|output basename
+active|third_party/sourcepawn-navmesh/navmesh|00_navmesh
 active|automaticbotnames|automaticbotnames
 active|bot_ai|bot_ai
 active|bot_knowledge|bot_knowledge
+active|bot_navigation|bot_navigation
 active|bot_rocketjump|bot_rocketjump
 active|bot_teamplay|bot_teamplay
 active|bot_trucefix|bot_trucefix
