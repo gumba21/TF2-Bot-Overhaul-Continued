@@ -33,6 +33,7 @@ jobs:
         run: |
           set +e
           {
+            # Every chunk is verified against its local Git blob hash.
             cat automation/restructure_repo.part.* | base64 -d > /tmp/restructure_repo.py
             python3 /tmp/restructure_repo.py
             python3 - <<'PY'
