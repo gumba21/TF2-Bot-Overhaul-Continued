@@ -4202,7 +4202,7 @@ public any Native_CSNavAreaGetApproachInfoList(Handle plugin, int numParams)
 	
 	int startIndex = g_hNavMeshAreas.Get(areaIndex, CSNavArea_ApproachInfoStartIndex);
 	if ( startIndex == -1 )
-		return;
+		return 0;
 	
 	int endIndex = g_hNavMeshAreas.Get(areaIndex, CSNavArea_ApproachInfoEndIndex);
 	for (int i = startIndex; i <= endIndex; i++)
