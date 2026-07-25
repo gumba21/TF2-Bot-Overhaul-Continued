@@ -1,6 +1,11 @@
 name: Build Human Foundation test plugin
 
 on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - synchronize
   push:
     branches:
       - feature/human-awareness-v1
@@ -53,5 +58,3 @@ jobs:
           path: build/bot_ai.smx
           if-no-files-found: error
           retention-days: 30
-
-# Triggered after the verified Human Foundation source commit.
