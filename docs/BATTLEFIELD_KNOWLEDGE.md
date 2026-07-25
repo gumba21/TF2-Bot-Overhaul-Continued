@@ -154,3 +154,9 @@ Records are cleared or corrected on:
 - map start and map end
 
 The system remains observation-first. Existing class and combat behavior does not consume its results unless a feature explicitly opts in.
+
+## Validation status
+
+The full SourceMod 1.12 deployment manifest compiles successfully and produces 22 active plugins plus 2 disabled optional plugins. The compiled `bot_knowledge.smx` is committed inside the drop-in `tf/` tree.
+
+Live TF2 validation is still required for perception tuning, group stability on real maps, front-line usefulness, runtime cost at full player counts, and the disabled Mad Milk pilot before it should be enabled by default.
