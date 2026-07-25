@@ -28,17 +28,51 @@ jobs:
           fetch-depth: 0
 
       - name: Apply deployment restructure
+        id: transform
+        shell: bash
+        run: |
+          set +e
+          {
+            base64 -d automation/restructure_repo.py.b64 > /tmp/restructure_repo.py
+            python3 /tmp/restructure_repo.py
+            python3 - <<'PY'
+          from pathlib import Path
+          root = Path('tf/addons/sourcemod/scripting/bot overhaul')
+          for name in ('GiveBotsCosmetics.sp', 'tf_bot_medic_fix.sp'):
+              path = root / name
+              if path.exists():
+                  text = path.read_text(encoding='utf-8-sig')
+                  text = '\n'.join(line.rstrip() for line in text.replace('\r\n', '\n').replace('\r', '\n').split('\n'))
+                  path.write_text(text, encoding='utf-8')
+          PY
+            git diff --check
+          } 2>&1 | tee /tmp/restructure-transform.log
+          status=${PIPESTATUS[0]}
+          echo "status=${status}" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Preserve transformation diagnostics
+        if: steps.transform.outputs.status != '0'
         shell: bash
         run: |
           set -euo pipefail
-          base64 -d automation/restructure_repo.py.b64 > /tmp/restructure_repo.py
-          python3 /tmp/restructure_repo.py
-          git diff --check
+          cp /tmp/restructure-transform.log automation/restructure-transform.log
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add automation/restructure-transform.log
+          git commit -m "Update deployment restructure diagnostics" || true
+          git push origin HEAD:feature/human-awareness-v1
+
+      - name: Fail on transformation errors
+        if: steps.transform.outputs.status != '0'
+        run: exit 1
 
       - name: Install 32-bit compiler runtime
+        if: steps.transform.outputs.status == '0'
         run: sudo apt-get update && sudo apt-get install -y lib32stdc++6 lib32gcc-s1
 
       - name: Compile every SourcePawn plugin
+        if: steps.transform.outputs.status == '0'
         id: compile
         shell: bash
         run: |
@@ -49,7 +83,7 @@ jobs:
           exit 0
 
       - name: Preserve build diagnostics
-        if: steps.compile.outputs.status != '0'
+        if: steps.transform.outputs.status == '0' && steps.compile.outputs.status != '0'
         shell: bash
         run: |
           set -euo pipefail
@@ -61,11 +95,11 @@ jobs:
           git push origin HEAD:feature/human-awareness-v1
 
       - name: Fail on compiler errors
-        if: steps.compile.outputs.status != '0'
+        if: steps.transform.outputs.status == '0' && steps.compile.outputs.status != '0'
         run: exit 1
 
       - name: Validate deployment tree
-        if: steps.compile.outputs.status == '0'
+        if: steps.transform.outputs.status == '0' && steps.compile.outputs.status == '0'
         shell: bash
         run: |
           set -euo pipefail
@@ -83,7 +117,7 @@ jobs:
           git diff --check
 
       - name: Commit deployment-ready repository
-        if: steps.compile.outputs.status == '0'
+        if: steps.transform.outputs.status == '0' && steps.compile.outputs.status == '0'
         shell: bash
         run: |
           set -euo pipefail
