@@ -1,0 +1,28 @@
+name: Compile SourcePawn plugins
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - 'feature/**'
+
+permissions:
+  contents: read
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install 32-bit compiler runtime
+        run: sudo apt-get update && sudo apt-get install -y lib32stdc++6 lib32gcc-s1
+
+      - name: Compile every tracked SourcePawn plugin
+        run: tools/build_plugins.sh
+
+      - name: Verify committed deployment binaries match source
+        run: git diff --exit-code -- tf/addons/sourcemod/plugins
