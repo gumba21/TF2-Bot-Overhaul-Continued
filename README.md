@@ -48,9 +48,11 @@ Windows PowerShell:
 ./tools/build_plugins.ps1
 ```
 
-Both scripts download SourceMod 1.12 when `spcomp` is not already available, compile every tracked SourcePawn source, and write the resulting `.smx` files directly into the deployable `tf/addons/sourcemod/plugins/` tree. The complete manifest currently contains 22 active plugins and 2 disabled optional plugins.
+Both scripts download SourceMod 1.12 when `spcomp` is not already available, compile every tracked SourcePawn source, and write the resulting `.smx` files directly into the deployable `tf/addons/sourcemod/plugins/` tree. The complete manifest currently contains 24 active plugins and 2 disabled optional plugins.
 
 The original active plugin set remains active. `sd_doomsday_bots.smx` and `tf2botchatter.smx` compile into `plugins/disabled/` because they were source-only in the supplied package. The original upstream sources for `GiveBotsCosmetics` and `tf_bot_medic_fix` are tracked in the repository, so every deployed plugin is reproducibly buildable without opaque binary-only exceptions.
+
+The Tactical Navigation nav-access dependency is also tracked as source. `00_navmesh.smx` is built from a pinned GPL-3.0 SourcePawn parser and loads before `bot_navigation.smx`; no platform-specific native extension is required.
 
 ## Major Update 1 — Human Foundation
 
@@ -61,6 +63,12 @@ The current development branch adds a universal human-like layer underneath exis
 `bot_knowledge.smx` adds a shared, perception-aware information layer for future class, weapon, personality, communication, coordination, and Team Director behavior.
 
 It separates authoritative world truth from observer-scoped bot knowledge, preserves lost enemies as decaying memories with positional uncertainty, caches players/buildings/objectives, detects stable groups, estimates the front line, publishes team battlefield states, and exposes a central native query API. Existing combat behavior remains unchanged in observation mode. The Mad Milk pilot is present but disabled by default. See [`docs/BATTLEFIELD_KNOWLEDGE.md`](docs/BATTLEFIELD_KNOWLEDGE.md).
+
+## Major Update 1.2 — Tactical Navigation
+
+`bot_navigation.smx` builds a reusable tactical graph above TF2's existing `.nav` mesh. It caches areas and connections, analyzes geometry, tracks per-team traffic and decaying danger, consumes observer-scoped Knowledge threats, calculates budgeted A* routes with general route profiles, and exposes centralized movement requests through `bot_navigation.inc`.
+
+Core graph and overlay tracking run in observation mode by default. The visible Medic safety, Scout flank, and emergency-retreat pilots are compiled but disabled until live TF2 testing. See [`docs/TACTICAL_NAVIGATION.md`](docs/TACTICAL_NAVIGATION.md).
 
 ## Notes
 
