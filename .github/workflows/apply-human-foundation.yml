@@ -1,0 +1,78 @@
+name: Apply Human Foundation
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - reopened
+      - synchronize
+  push:
+    branches:
+      - feature/human-awareness-v1
+    paths:
+      - .github/workflows/apply-human-foundation.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply-compile-and-commit:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/human-awareness-v1
+          fetch-depth: 0
+
+      - name: Apply Human Foundation transformation
+        shell: bash
+        run: |
+          set -euo pipefail
+          base64 -d automation/human-foundation.py.gz.b64 | gzip -d > /tmp/apply_human_foundation.py
+          python3 /tmp/apply_human_foundation.py
+          git diff --check
+
+      - name: Install 32-bit compiler runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y lib32stdc++6 lib32gcc-s1
+
+      - name: Download SourceMod compiler
+        shell: bash
+        run: |
+          set -euo pipefail
+          latest="$(curl -fsSL https://www.sourcemod.net/smdrop/1.12/sourcemod-latest-linux)"
+          curl -fsSL "https://www.sourcemod.net/smdrop/1.12/${latest}" -o /tmp/sourcemod.tar.gz
+          mkdir -p /tmp/sourcemod
+          tar -xzf /tmp/sourcemod.tar.gz -C /tmp/sourcemod
+          chmod +x /tmp/sourcemod/addons/sourcemod/scripting/spcomp
+
+      - name: Compile bot_ai.sp
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/tf2-bot-build
+          /tmp/sourcemod/addons/sourcemod/scripting/spcomp \
+            -i/tmp/sourcemod/addons/sourcemod/scripting/include \
+            -o/tmp/tf2-bot-build/bot_ai.smx \
+            "addons/sourcemod/scripting/bot overhaul/bot_ai.sp"
+
+      - name: Commit verified Human Foundation
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f automation/human-foundation.py.gz.b64
+          rm -f .github/workflows/apply-human-foundation.yml
+          rmdir automation .github/workflows .github 2>/dev/null || true
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Expand awareness into Human Foundation"
+          git push origin HEAD:feature/human-awareness-v1
