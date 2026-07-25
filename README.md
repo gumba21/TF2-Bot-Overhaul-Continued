@@ -48,7 +48,7 @@ Windows PowerShell:
 ./tools/build_plugins.ps1
 ```
 
-Both scripts download SourceMod 1.12 when `spcomp` is not already available, compile every tracked SourcePawn source, and write the resulting `.smx` files directly into the deployable `tf/addons/sourcemod/plugins/` tree.
+Both scripts download SourceMod 1.12 when `spcomp` is not already available, compile every tracked SourcePawn source, and write the resulting `.smx` files directly into the deployable `tf/addons/sourcemod/plugins/` tree. The complete manifest currently contains 22 active plugins and 2 disabled optional plugins.
 
 The original active plugin set remains active. `sd_doomsday_bots.smx` and `tf2botchatter.smx` compile into `plugins/disabled/` because they were source-only in the supplied package. The original upstream sources for `GiveBotsCosmetics` and `tf_bot_medic_fix` are tracked in the repository, so every deployed plugin is reproducibly buildable without opaque binary-only exceptions.
 
