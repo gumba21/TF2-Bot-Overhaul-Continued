@@ -1,0 +1,37 @@
+# Editors and operating systems
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Local compiler/download cache
+.cache/
+build/
+dist/
+*.tmp
+*.temp
+*.bak
+
+# SourceMod runtime output
+tf/addons/sourcemod/logs/
+tf/addons/sourcemod/data/sqlite/
+tf/addons/sourcemod/data/*.sq3
+tf/addons/sourcemod/data/*.db
+tf/addons/sourcemod/scripting/compiled/
+tf/addons/sourcemod/scripting/*.smx
+
+# Stripper runtime dumps
+tf/addons/stripper/dumps/
+tf/addons/stripper_missions/dumps/
+tf/addons/stripper_missions_invasion/dumps/
+
+# Dedicated/listen-server generated files
+tf/download/
+tf/downloadlists/
+tf/materials/temp/
+tf/cfg/server.cfg.local
+
+# Keep deployment binaries committed under tf/addons/sourcemod/plugins/.

@@ -1,35 +1,63 @@
 # TF2 Bot Overhaul Continued
 
-A continuation and maintenance workspace for the TF2 Bot Overhaul SourceMod/Stripper project.
+A continuation of the TF2 Bot Overhaul SourceMod and Stripper project, now laid out as a deployment-ready Team Fortress 2 directory.
 
-This repository preserves the editable SourcePawn source, configuration files, map logic, MvM population scripts, and maintenance notes so future changes can be reviewed and developed through Git.
+## Install or update
 
-## Main AI modules
+1. Install the required third-party runtime dependencies: Metamod:Source, SourceMod, and Stripper:Source.
+2. Pull or download this repository.
+3. Drag the repository's `tf` folder into the Team Fortress 2 installation directory.
+4. Choose **Replace/Overwrite** when prompted.
+5. Launch TF2 or restart the server.
 
-- `addons/sourcemod/scripting/bot overhaul/bot_ai.sp` — general bot behavior
-- `addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp` — Soldier/Demoman movement behavior
-- `addons/sourcemod/scripting/bot overhaul/bot_teamplay.sp` — following and team coordination
-- `addons/sourcemod/scripting/bot overhaul/tf_bot_voice.sp` and `tf2botchatter.sp` — bot voice/chatter behavior
-- MvM, class-restriction, loadout, naming, truce, setup-time, and gamemode support plugins
+The repository does not place project documentation or build tools inside the game directory. Everything under `tf/` is arranged at the path TF2 expects.
 
-## Initial polish patch
+## Repository layout
 
-The initial import includes a conservative polish pass to `bot_ai.sp`:
+```text
+TF2-Bot-Overhaul-Continued/
+├── tf/
+│   ├── cfg/TF2_Bot_Overhaul.cfg
+│   ├── scripts/
+│   └── addons/
+│       ├── metamod/
+│       ├── sourcemod/
+│       │   ├── configs/
+│       │   ├── gamedata/
+│       │   ├── plugins/
+│       │   └── scripting/
+│       ├── stripper/
+│       ├── stripper_missions/
+│       └── stripper_missions_invasion/
+├── docs/
+├── tools/
+└── README.md
+```
 
-- fixed enhanced-AI activation being overwritten while scanning humans
-- stopped scanning after finding a qualifying player
-- cached the bot position used by the activation scan
-- enabled the intended RED MvM activation path
-- fixed an invalid disguised-Spy condition call
-- cached `tf_bot_difficulty`
-- clarified the expert spy-check condition grouping
+## Build plugins
 
-See `POLISH_PATCH_NOTES.txt` and `POLISH_PATCH.diff` for exact details.
+Linux/macOS:
 
-## Building
+```bash
+tools/build_plugins.sh
+```
 
-Compile the `.sp` files against the matching SourceMod and extension include set. Precompiled `.smx` plugins and bundled third-party Stripper `.dll` files are intentionally excluded from source control.
+Windows PowerShell:
+
+```powershell
+./tools/build_plugins.ps1
+```
+
+Both scripts download SourceMod 1.12 when `spcomp` is not already available, compile the tracked SourcePawn sources, and write the resulting `.smx` files directly into the deployable `tf/addons/sourcemod/plugins/` tree.
+
+The original active plugin set remains active. `sd_doomsday_bots.smx` and `tf2botchatter.smx` compile into `plugins/disabled/` because they were source-only in the supplied package. The original upstream sources for `GiveBotsCosmetics` and `tf_bot_medic_fix` are pinned and restored during the restructure so every deployed plugin is reproducibly buildable.
 
 ## Major Update 1 — Human Foundation
 
-The first major update builds a universal human-like layer underneath the existing class logic: configurable sight and hearing, reaction and thinking delays, last-known-position investigation, per-life personality traits, risk/reward intents, believable emergent mistakes, and an optional Unfair baseline. See [`docs/HUMAN_FOUNDATION.md`](docs/HUMAN_FOUNDATION.md).
+The current development branch adds a universal human-like layer underneath existing class behavior: configurable sight and hearing, reaction and thinking delays, last-known-position investigation, per-life personality traits, risk/reward intents, believable emergent mistakes, and an optional Unfair baseline. See [`docs/HUMAN_FOUNDATION.md`](docs/HUMAN_FOUNDATION.md).
+
+## Notes
+
+- `tf/cfg/TF2_Bot_Overhaul.cfg` is loaded automatically by `bot_ai.smx` on map start.
+- Runtime logs, Stripper dumps, compiler caches, and local server data are ignored by Git.
+- Historical polish notes are stored under `docs/maintenance/`.

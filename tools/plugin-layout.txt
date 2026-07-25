@@ -1,0 +1,24 @@
+# state|source basename|output basename
+active|automaticbotnames|automaticbotnames
+active|bot_ai|bot_ai
+active|bot_rocketjump|bot_rocketjump
+active|bot_teamplay|bot_teamplay
+active|bot_trucefix|bot_trucefix
+active|ClassRestrictionsForBots|ClassRestrictionsForBots
+active|ClassRestrictionsForHumans|ClassRestrictionsForHumans
+active|GameModeChecker|GameModeChecker
+active|GiveBotsCosmetics|GiveBotsCosmetics
+active|GiveBotsLoadout_MISSIONS|GiveBotsLoadout_MISSIONS
+active|GiveBotsWeapons|GiveBotsWeapons
+active|mvm_bot_collect_money|mvm_bot_collect_money
+active|mvm_fake_bot_upgrades|mvm_fake_bot_upgrades
+active|mvm_red_sniper_bot_fix|mvm_red_sniper_bot_fix
+active|mvm_tf_bot_ai|mvm_tf_bot_ai
+active|mvm_tf_bot_force_aim|mvm_tf_bot_force_aim
+active|tf_bots_on_plr|tf_bots_on_plr
+active|tf_bot_medic_fix|tf_bot_medic_fix
+active|tf_bot_setup_time_move|tf_bot_setup_time_move
+active|tf_bot_voice|tf_bot_voice
+active|tidychat|tidychat
+disabled|sd_doomsday_bots|sd_doomsday_bots
+disabled|tf2botchatter|tf2botchatter
