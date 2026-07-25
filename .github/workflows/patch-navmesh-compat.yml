@@ -1,0 +1,72 @@
+name: Patch navmesh SourcePawn 1.12 compatibility
+
+on:
+  push:
+    branches:
+      - feature/human-awareness-v1
+    paths:
+      - .github/workflows/patch-navmesh-compat.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/human-awareness-v1
+          fetch-depth: 0
+
+      - name: Apply isolated compiler compatibility fixes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('tf/addons/sourcemod/scripting/bot overhaul/third_party/sourcepawn-navmesh/navmesh.sp')
+          text = path.read_text(encoding='utf-8-sig')
+          replacements = {
+              'view_as<NavPathCostFunctor>(GetNativeFunction(4))': 'view_as<Function>(GetNativeFunction(4))',
+              'public int Native_NavMeshAreaGetAdjacentAreas(Handle plugin, int numParams)': 'public any Native_NavMeshAreaGetAdjacentAreas(Handle plugin, int numParams)',
+              'public int Native_NavMeshAreaGetIncomingConnections(Handle plugin, int numParams)': 'public any Native_NavMeshAreaGetIncomingConnections(Handle plugin, int numParams)',
+              'public int Native_CSNavAreaGetApproachInfoList(Handle plugin, int numParams)': 'public any Native_CSNavAreaGetApproachInfoList(Handle plugin, int numParams)',
+              'public int Native_TerrorNavMeshGetNavMaxViewDistance(Handle plugin, int numParams)\n{\n\treturn g_TerrorNavMeshNavMaxViewDistance;\n}': 'public any Native_TerrorNavMeshGetNavMaxViewDistance(Handle plugin, int numParams)\n{\n\treturn view_as<int>(g_TerrorNavMeshNavMaxViewDistance);\n}',
+          }
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f'missing expected navmesh compatibility anchor: {old[:80]}')
+              text = text.replace(old, new)
+
+          # Native callbacks use the generic any return cell. Explicitly return zero
+          # from callbacks that only fill output buffers.
+          text = text.replace('\tdelete hStack;\n}\n\npublic any Native_NavMeshAreaGetIncomingConnections', '\tdelete hStack;\n\treturn 0;\n}\n\npublic any Native_NavMeshAreaGetIncomingConnections', 1)
+          text = text.replace('\tdelete hStack;\n}\n\npublic int Native_NavMeshAreaGetHidingSpots', '\tdelete hStack;\n\treturn 0;\n}\n\npublic int Native_NavMeshAreaGetHidingSpots', 1)
+          text = text.replace('\t}\n}\n\npublic int Native_TerrorNavMeshGetZombiePopulation', '\t}\n\treturn 0;\n}\n\npublic int Native_TerrorNavMeshGetZombiePopulation', 1)
+          path.write_text(text, encoding='utf-8')
+          PY
+
+          cat >> "tf/addons/sourcemod/scripting/bot overhaul/third_party/sourcepawn-navmesh/README.md" <<'EOF'
+
+          ## Local SourcePawn 1.12 compatibility patch
+
+          The vendored source changes only native callback typing required by SourcePawn 1.12:
+
+          - pass dynamic cost callbacks as generic `Function`
+          - return float native values through the native cell representation
+          - use `any` and explicit zero returns for output-only native callbacks
+
+          Nav parsing, graph data, and path behavior are otherwise unchanged.
+          EOF
+
+      - name: Commit compatibility patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "tf/addons/sourcemod/scripting/bot overhaul/third_party/sourcepawn-navmesh"
+          git commit -m "Patch navmesh parser for SourcePawn 1.12"
+          git push origin HEAD:feature/human-awareness-v1
