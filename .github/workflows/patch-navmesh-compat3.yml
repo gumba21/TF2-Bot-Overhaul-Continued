@@ -1,0 +1,43 @@
+name: Normalize remaining navmesh native return
+
+on:
+  push:
+    branches:
+      - feature/human-awareness-v1
+    paths:
+      - .github/workflows/patch-navmesh-compat3.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/human-awareness-v1
+          fetch-depth: 0
+      - name: Patch remaining output-only return
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('tf/addons/sourcemod/scripting/bot overhaul/third_party/sourcepawn-navmesh/navmesh.sp')
+          text = path.read_text(encoding='utf-8-sig')
+          old = 'int startIndex = g_hNavMeshAreas.Get(areaIndex, CSNavArea_ApproachInfoStartIndex);\n\tif ( startIndex == -1 )\n\t\treturn;'
+          new = 'int startIndex = g_hNavMeshAreas.Get(areaIndex, CSNavArea_ApproachInfoStartIndex);\n\tif ( startIndex == -1 )\n\t\treturn 0;'
+          if old not in text:
+              raise SystemExit('missing CS approach return compatibility anchor')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
+      - name: Commit return normalization
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "tf/addons/sourcemod/scripting/bot overhaul/third_party/sourcepawn-navmesh/navmesh.sp"
+          git commit -m "Normalize remaining navmesh native return"
+          git push origin HEAD:feature/human-awareness-v1
