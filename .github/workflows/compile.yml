@@ -22,7 +22,17 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y lib32stdc++6 lib32gcc-s1
 
       - name: Compile every tracked SourcePawn plugin
-        run: tools/build_plugins.sh
+        shell: bash
+        run: |
+          set -o pipefail
+          tools/build_plugins.sh 2>&1 | tee sourcepawn-build.log
+
+      - name: Preserve compiler diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sourcepawn-build-log
+          path: sourcepawn-build.log
 
       - name: Verify complete deployment plugin set
         shell: bash
