@@ -207,8 +207,132 @@ Copyright (c) 2004-2024 AlliedModders LLC
    311 | public Action Timer_GiveWeapons(Handle timer, any data)
 -----------------------^
 
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/GiveBotsLoadout_MISSIONS.sp(866) : error 047: array sizes do not match, or destination array is too small
-   866 |                                                 char name[13] = "The Commander";
--------------------------------------------------------------------------^
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/GiveBotsLoadout_MISSIONS.sp(311) : warning 242: function "Timer_GiveWeapons" should return an explicit value
+   311 | public Action Timer_GiveWeapons(Handle timer, any data)
+-----------------------^
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/GiveBotsLoadout_MISSIONS.sp(1241) : warning 242: function "TimerHealth" should return an explicit value
+  1241 | public Action TimerHealth(Handle timer, any client)
+-----------------------^
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/GiveBotsLoadout_MISSIONS.sp(1278) : warning 242: function "TposeFix" should return an explicit value
+  1278 | public Action TposeFix(Handle timer, any client)
+-----------------------^
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/GiveBotsLoadout_MISSIONS.sp(1347) : warning 242: function "TposeFix2" should return an explicit value
+  1347 | public Action TposeFix2(Handle timer, any client)
+-----------------------^
+Code size:         40908 bytes
+Data size:         8680 bytes
+Stack/heap size:      16904 bytes
+Total requirements:   66492 bytes
+
+7 Warnings.
+SourcePawn Compiler 1.12.0.7246
+Copyright (c) 1997-2006 ITB CompuPhase
+Copyright (c) 2004-2024 AlliedModders LLC
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/GiveBotsWeapons.sp(175) : warning 242: function "Timer_GiveWeapons" should return an explicit value
+   175 | public Action Timer_GiveWeapons(Handle timer, any data)
+-----------------------^
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/GiveBotsWeapons.sp(175) : warning 242: function "Timer_GiveWeapons" should return an explicit value
+   175 | public Action Timer_GiveWeapons(Handle timer, any data)
+-----------------------^
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/GiveBotsWeapons.sp(175) : warning 242: function "Timer_GiveWeapons" should return an explicit value
+   175 | public Action Timer_GiveWeapons(Handle timer, any data)
+-----------------------^
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/GiveBotsWeapons.sp(175) : warning 242: function "Timer_GiveWeapons" should return an explicit value
+   175 | public Action Timer_GiveWeapons(Handle timer, any data)
+-----------------------^
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/GiveBotsWeapons.sp(3328) : warning 242: function "TimerHealth" should return an explicit value
+  3328 | public Action TimerHealth(Handle timer, any client)
+-----------------------^
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/GiveBotsWeapons.sp(3385) : warning 242: function "TposeFix" should return an explicit value
+  3385 | public Action TposeFix(Handle timer, any client)
+-----------------------^
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/GiveBotsWeapons.sp(3455) : warning 242: function "TposeFix2" should return an explicit value
+  3455 | public Action TposeFix2(Handle timer, any client)
+-----------------------^
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/GiveBotsWeapons.sp(3465) : warning 242: function "EngineerFix" should return an explicit value
+  3465 | public Action EngineerFix(Handle timer, int client)
+-----------------------^
+Code size:         82736 bytes
+Data size:         16828 bytes
+Stack/heap size:      17144 bytes
+Total requirements:  116708 bytes
+
+8 Warnings.
+SourcePawn Compiler 1.12.0.7246
+Copyright (c) 1997-2006 ITB CompuPhase
+Copyright (c) 2004-2024 AlliedModders LLC
+
+Code size:         24636 bytes
+Data size:         4084 bytes
+Stack/heap size:      17052 bytes
+Total requirements:   45772 bytes
+SourcePawn Compiler 1.12.0.7246
+Copyright (c) 1997-2006 ITB CompuPhase
+Copyright (c) 2004-2024 AlliedModders LLC
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/mvm_fake_bot_upgrades.sp(37) : warning 215: expression has no effect
+    37 |                 regencount == 0;
+------------------------------------^
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/mvm_fake_bot_upgrades.sp(53) : warning 242: function "FakeUpgrade" should return an explicit value
+    53 | public Action FakeUpgrade(Handle event, const char[] name, bool dontBroadcast)
+-----------------------^
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/mvm_fake_bot_upgrades.sp(68) : warning 242: function "FakeUpgrade2" should return an explicit value
+    68 | public Action FakeUpgrade2(Handle event , const char[] name, bool dontBroadcast)
+-----------------------^
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/mvm_fake_bot_upgrades.sp(227) : warning 242: function "BotSpawn" should return an explicit value
+   227 | public Action BotSpawn(Handle event, const char[] name, bool dontBroadcast)
+-----------------------^
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/mvm_fake_bot_upgrades.sp(315) : warning 242: function "ResetRegenTime" should return an explicit value
+   315 | public Action ResetRegenTime(Handle timer)
+-----------------------^
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/mvm_fake_bot_upgrades.sp(320) : warning 242: function "ResetUpgradeTime" should return an explicit value
+   320 | public Action ResetUpgradeTime(Handle timer)
+-----------------------^
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/mvm_fake_bot_upgrades.sp(325) : warning 242: function "ResetPowerupTime" should return an explicit value
+   325 | public Action ResetPowerupTime(Handle timer)
+-----------------------^
+Code size:         12200 bytes
+Data size:         3832 bytes
+Stack/heap size:      17184 bytes
+Total requirements:   33216 bytes
+
+7 Warnings.
+SourcePawn Compiler 1.12.0.7246
+Copyright (c) 1997-2006 ITB CompuPhase
+Copyright (c) 2004-2024 AlliedModders LLC
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/mvm_red_sniper_bot_fix.sp(100) : warning 242: function "ResetAttackTimer" should return an explicit value
+   100 | public Action ResetAttackTimer(Handle timer)
+-----------------------^
+Code size:         9680 bytes
+Data size:         3200 bytes
+Stack/heap size:      16576 bytes
+Total requirements:   29456 bytes
+
+1 Warning.
+SourcePawn Compiler 1.12.0.7246
+Copyright (c) 1997-2006 ITB CompuPhase
+Copyright (c) 2004-2024 AlliedModders LLC
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/mvm_tf_bot_ai.sp(132) : error 174: symbol 'TFCond' is a type and cannot be used as a value
+   132 |                                         else if(team == 3 && TFCond == TFCond_DefenseBuffNoCritBlock)
+----------------------------------------------------------------------^
 
 1 Error.
