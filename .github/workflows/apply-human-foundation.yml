@@ -35,6 +35,13 @@ jobs:
           set -euo pipefail
           base64 -d automation/human-foundation.py.gz.b64 | gzip -d > /tmp/apply_human_foundation.py
           python3 /tmp/apply_human_foundation.py
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('addons/sourcemod/scripting/bot overhaul/bot_ai.sp')
+          source = path.read_text()
+          source = source.replace('\\t', '\t')
+          path.write_text(source)
+          PY
           git diff --check
 
       - name: Install 32-bit compiler runtime
