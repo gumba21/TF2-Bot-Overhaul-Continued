@@ -29,9 +29,10 @@ jobs:
         run: |
           set -euo pipefail
           test -f "tf/addons/sourcemod/plugins/bot overhaul/bot_ai.smx"
+          test -f "tf/addons/sourcemod/plugins/bot overhaul/bot_knowledge.smx"
           test -f "tf/addons/sourcemod/plugins/bot overhaul/GiveBotsCosmetics.smx"
           test -f "tf/addons/sourcemod/plugins/bot overhaul/tf_bot_medic_fix.smx"
           test -f tf/addons/sourcemod/plugins/disabled/sd_doomsday_bots.smx
           test -f tf/addons/sourcemod/plugins/disabled/tf2botchatter.smx
-          test "$(find 'tf/addons/sourcemod/plugins/bot overhaul' -maxdepth 1 -name '*.smx' | wc -l)" -eq 21
+          test "$(find 'tf/addons/sourcemod/plugins/bot overhaul' -maxdepth 1 -name '*.smx' | wc -l)" -eq 22
           test "$(find tf/addons/sourcemod/plugins/disabled -maxdepth 1 -name '*.smx' | wc -l)" -eq 2
