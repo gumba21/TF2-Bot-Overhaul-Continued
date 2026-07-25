@@ -33,7 +33,7 @@ jobs:
         run: |
           set +e
           {
-            base64 -d automation/restructure_repo.py.b64 > /tmp/restructure_repo.py
+            cat automation/restructure_repo.part.* | base64 -d > /tmp/restructure_repo.py
             python3 /tmp/restructure_repo.py
             python3 - <<'PY'
           from pathlib import Path
