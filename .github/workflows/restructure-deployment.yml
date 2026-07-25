@@ -1,11 +1,6 @@
 name: Restructure deployment tree
 
 on:
-  pull_request:
-    branches:
-      - main
-    types:
-      - synchronize
   push:
     branches:
       - feature/human-awareness-v1
