@@ -1,31 +1,45 @@
 # TF2 Bot Overhaul Continued
 
-A continuation and maintenance workspace for the TF2 Bot Overhaul SourceMod/Stripper project.
+A continuation of the TF2 Bot Overhaul SourceMod and Stripper project, laid out as a deployment-ready Team Fortress 2 directory.
 
-This repository preserves the editable SourcePawn source, configuration files, map logic, MvM population scripts, and maintenance notes so future changes can be reviewed and developed through Git.
+## Install or update
 
-## Main AI modules
+1. Install the required third-party runtime dependencies: Metamod:Source, SourceMod, and Stripper:Source.
+2. Pull or download this repository.
+3. Drag the repository's `tf` folder into the Team Fortress 2 installation directory.
+4. Choose **Replace/Overwrite** when prompted.
+5. Launch TF2 or restart the server.
 
-- `addons/sourcemod/scripting/bot overhaul/bot_ai.sp` — general bot behavior
-- `addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp` — Soldier/Demoman movement behavior
-- `addons/sourcemod/scripting/bot overhaul/bot_teamplay.sp` — following and team coordination
-- `addons/sourcemod/scripting/bot overhaul/tf_bot_voice.sp` and `tf2botchatter.sp` — bot voice/chatter behavior
-- MvM, class-restriction, loadout, naming, truce, setup-time, and gamemode support plugins
+The repository does not place project documentation or build tools inside the game directory. Everything under `tf/` is arranged at the path TF2 expects. See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for the complete runtime path reference.
 
-## Initial polish patch
+## Build plugins
 
-The initial import includes a conservative polish pass to `bot_ai.sp`:
+```bash
+tools/build_plugins.sh
+```
 
-- fixed enhanced-AI activation being overwritten while scanning humans
-- stopped scanning after finding a qualifying player
-- cached the bot position used by the activation scan
-- enabled the intended RED MvM activation path
-- fixed an invalid disguised-Spy condition call
-- cached `tf_bot_difficulty`
-- clarified the expert spy-check condition grouping
+```powershell
+./tools/build_plugins.ps1
+```
 
-See `POLISH_PATCH_NOTES.txt` and `POLISH_PATCH.diff` for exact details.
+The SourceMod 1.12 manifest currently builds 24 active plugins and 2 disabled optional plugins directly into the deployable tree.
 
-## Building
+## Major Update 1 — Human Foundation
 
-Compile the `.sp` files against the matching SourceMod and extension include set. Precompiled `.smx` plugins and bundled third-party Stripper `.dll` files are intentionally excluded from source control.
+Shared human-like perception, reaction, memory, personality, decision cadence, and believable limitations beneath existing class behavior. See [`docs/HUMAN_FOUNDATION.md`](docs/HUMAN_FOUNDATION.md).
+
+## Major Update 1.1 — Battlefield Knowledge
+
+Observer-scoped battlefield facts, memory, stable groups, team state, front-line analysis, and a central query API. See [`docs/BATTLEFIELD_KNOWLEDGE.md`](docs/BATTLEFIELD_KNOWLEDGE.md).
+
+## Major Update 1.2 — Tactical Navigation
+
+`bot_navigation.smx` builds a cached tactical graph above TF2's existing `.nav` mesh, tracks decaying danger and friendly control, consumes fair Knowledge threats, calculates budgeted A* routes with general profiles, and exposes centralized movement requests through `bot_navigation.inc`.
+
+The source-tracked `00_navmesh.smx` parser loads first; no platform-specific navigation extension is required. Core tracking runs in observation mode, while Medic safety, Scout flank, and emergency-retreat pilots remain disabled until live testing. See [`docs/TACTICAL_NAVIGATION.md`](docs/TACTICAL_NAVIGATION.md).
+
+## Notes
+
+- `tf/cfg/TF2_Bot_Overhaul.cfg` is loaded automatically by `bot_ai.smx` on map start.
+- Runtime logs, Stripper dumps, compiler caches, and local server data are ignored by Git.
+- Historical polish notes are stored under `docs/maintenance/`.
