@@ -1,1 +1,9 @@
-/home/runner/work/_temp/7f7bebe7-dc12-4126-897f-0cc67cba837e.sh: line 2: tools/build_plugins.sh: No such file or directory
+SourcePawn Compiler 1.12.0.7246
+Copyright (c) 1997-2006 ITB CompuPhase
+Copyright (c) 2004-2024 AlliedModders LLC
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/automaticbotnames.sp(449) : error 147: new-style declarations are required
+   449 | public Action UserMessage_SayText2(UserMsg msg_id, Handle bf, const players[], int playersNum, bool reliable, bool init)
+-------------------------------------------------------------------------------------^
+
+1 Error.
