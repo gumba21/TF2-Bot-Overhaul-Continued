@@ -26,13 +26,13 @@ bool IsWithinObserverFov(int observer, const float eye[3], const float target[3]
     if (fov >= 359.0) return true;
 
     float angles[3];
-    float forward[3];
+    float forwardVector[3];
     float direction[3];
     GetClientEyeAngles(observer, angles);
-    GetAngleVectors(angles, forward, NULL_VECTOR, NULL_VECTOR);
+    GetAngleVectors(angles, forwardVector, NULL_VECTOR, NULL_VECTOR);
     MakeVectorFromPoints(eye, target, direction);
     NormalizeVector(direction, direction);
-    return GetVectorDotProduct(forward, direction) >= Cosine(DegToRad(fov * 0.5));
+    return GetVectorDotProduct(forwardVector, direction) >= Cosine(DegToRad(fov * 0.5));
 }
 
 public bool TraceFilter_IgnoreObserver(int entity, int contentsMask, any data)
