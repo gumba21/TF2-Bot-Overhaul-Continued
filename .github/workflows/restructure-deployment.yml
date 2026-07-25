@@ -1,11 +1,11 @@
 name: Restructure deployment tree
 
 on:
-  push:
+  pull_request:
     branches:
-      - feature/human-awareness-v1
-    paths:
-      - .github/workflows/restructure-deployment.yml
+      - main
+    types:
+      - synchronize
 
 permissions:
   contents: write
@@ -153,7 +153,9 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf automation
-          rm -f .github/workflows/restructure-deployment.yml
+          # The permanent workflow is added directly after this commit so the
+          # Actions token only publishes ordinary repository content here.
+          rm -f .github/workflows/compile.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
