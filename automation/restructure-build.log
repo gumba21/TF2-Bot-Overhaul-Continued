@@ -68,184 +68,54 @@ SourcePawn Compiler 1.12.0.7246
 Copyright (c) 1997-2006 ITB CompuPhase
 Copyright (c) 2004-2024 AlliedModders LLC
 
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(28) : error 450: no viable conversion from "float[3]" to "float"
-    28 |         return vel;
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(30) : warning 242: function "RoundStarted" should return an explicit value
+    30 | public Action RoundStarted(Handle  event , const char[]  name , bool  dontBroadcast)
+-----------------------^
+Code size:         35808 bytes
+Data size:         5248 bytes
+Stack/heap size:      17964 bytes
+Total requirements:   59020 bytes
+
+1 Warning.
+SourcePawn Compiler 1.12.0.7246
+Copyright (c) 1997-2006 ITB CompuPhase
+Copyright (c) 2004-2024 AlliedModders LLC
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_teamplay.sp(85) : warning 242: function "PlayerDied" should return an explicit value
+    85 | public Action PlayerDied(Handle event , const char[] name , bool dontBroadcast)
+-----------------------^
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_teamplay.sp(100) : warning 242: function "TeamplayTimer" should return an explicit value
+   100 | public Action TeamplayTimer(Handle timer)
+-----------------------^
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_teamplay.sp(125) : warning 242: function "PlayerJoined" should return an explicit value
+   125 | public Action PlayerJoined(Handle event , const char[] name, bool dontBroadcast)
+-----------------------^
+Code size:         6448 bytes
+Data size:         3716 bytes
+Stack/heap size:      16792 bytes
+Total requirements:   26956 bytes
+
+3 Warnings.
+SourcePawn Compiler 1.12.0.7246
+Copyright (c) 1997-2006 ITB CompuPhase
+Copyright (c) 2004-2024 AlliedModders LLC
+
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_trucefix.sp(23) : error 450: no viable conversion from "float[3]" to "float"
+    23 |         return vel;
 -----------------^
 
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(245) : error 450: no viable conversion from "float" to "float[3]"
-   245 |                                                                         vel = moveForward(vel,300.0);
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_trucefix.sp(99) : error 450: no viable conversion from "float" to "float[3]"
+    99 |                                                                         vel = moveForward(vel,300.0);
 -------------------------------------------------------------------------------------^
 
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(258) : error 450: no viable conversion from "float" to "float[3]"
-   258 |                                                                         vel = moveForward(vel,300.0);
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_trucefix.sp(128) : error 450: no viable conversion from "float" to "float[3]"
+   128 |                                                                         vel = moveForward(vel,300.0);
 -------------------------------------------------------------------------------------^
 
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(262) : error 450: no viable conversion from "float" to "float[3]"
-   262 |                                                                         vel = moveForward(vel,300.0);
+/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_trucefix.sp(157) : error 450: no viable conversion from "float" to "float[3]"
+   157 |                                                                         vel = moveForward(vel,300.0);
 -------------------------------------------------------------------------------------^
 
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(278) : error 450: no viable conversion from "float" to "float[3]"
-   278 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(327) : error 450: no viable conversion from "float" to "float[3]"
-   327 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(340) : error 450: no viable conversion from "float" to "float[3]"
-   340 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(353) : error 450: no viable conversion from "float" to "float[3]"
-   353 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(357) : error 450: no viable conversion from "float" to "float[3]"
-   357 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(373) : error 450: no viable conversion from "float" to "float[3]"
-   373 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(389) : error 450: no viable conversion from "float" to "float[3]"
-   389 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(443) : error 450: no viable conversion from "float" to "float[3]"
-   443 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(456) : error 450: no viable conversion from "float" to "float[3]"
-   456 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(469) : error 450: no viable conversion from "float" to "float[3]"
-   469 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(473) : error 450: no viable conversion from "float" to "float[3]"
-   473 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(489) : error 450: no viable conversion from "float" to "float[3]"
-   489 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(505) : error 450: no viable conversion from "float" to "float[3]"
-   505 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(566) : error 450: no viable conversion from "float" to "float[3]"
-   566 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(579) : error 450: no viable conversion from "float" to "float[3]"
-   579 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(592) : error 450: no viable conversion from "float" to "float[3]"
-   592 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(605) : error 450: no viable conversion from "float" to "float[3]"
-   605 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(618) : error 450: no viable conversion from "float" to "float[3]"
-   618 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(622) : error 450: no viable conversion from "float" to "float[3]"
-   622 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(638) : error 450: no viable conversion from "float" to "float[3]"
-   638 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(654) : error 450: no viable conversion from "float" to "float[3]"
-   654 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(670) : error 450: no viable conversion from "float" to "float[3]"
-   670 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(686) : error 450: no viable conversion from "float" to "float[3]"
-   686 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(746) : error 450: no viable conversion from "float" to "float[3]"
-   746 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(759) : error 450: no viable conversion from "float" to "float[3]"
-   759 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(772) : error 450: no viable conversion from "float" to "float[3]"
-   772 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(785) : error 450: no viable conversion from "float" to "float[3]"
-   785 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(789) : error 450: no viable conversion from "float" to "float[3]"
-   789 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(805) : error 450: no viable conversion from "float" to "float[3]"
-   805 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(821) : error 450: no viable conversion from "float" to "float[3]"
-   821 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(833) : error 450: no viable conversion from "float" to "float[3]"
-   833 |                                                                                 vel = moveForward(vel,300.0);
----------------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(838) : error 450: no viable conversion from "float" to "float[3]"
-   838 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(896) : error 450: no viable conversion from "float" to "float[3]"
-   896 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(909) : error 450: no viable conversion from "float" to "float[3]"
-   909 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(922) : error 450: no viable conversion from "float" to "float[3]"
-   922 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(935) : error 450: no viable conversion from "float" to "float[3]"
-   935 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(954) : error 450: no viable conversion from "float" to "float[3]"
-   954 |                                                                                 vel = moveForward(vel,300.0);
----------------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(959) : error 450: no viable conversion from "float" to "float[3]"
-   959 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(975) : error 450: no viable conversion from "float" to "float[3]"
-   975 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(991) : error 450: no viable conversion from "float" to "float[3]"
-   991 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-/home/runner/work/TF2-Bot-Overhaul-Continued/TF2-Bot-Overhaul-Continued/tf/addons/sourcemod/scripting/bot overhaul/bot_rocketjump.sp(1007) : error 450: no viable conversion from "float" to "float[3]"
-  1007 |                                                                         vel = moveForward(vel,300.0);
--------------------------------------------------------------------------------------^
-
-45 Errors.
+4 Errors.
