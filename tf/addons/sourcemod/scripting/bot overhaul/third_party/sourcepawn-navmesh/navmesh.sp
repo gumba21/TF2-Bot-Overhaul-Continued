@@ -550,7 +550,7 @@ bool NavMeshBuildPath(int iStartAreaIndex,
 	int iGoalAreaIndex,
 	const float flGoalPos[3],
 	Handle hCostFunctionPlugin,
-	NavPathCostFunctor iCostFunction,
+	Function iCostFunction,
 	any iCostData=0,
 	int &iClosestAreaIndex=-1,
 	float flMaxPathLength=0.0,
@@ -3637,7 +3637,7 @@ public int Native_NavMeshBuildPath(Handle plugin, int numParams)
 		view_as<int>(GetNativeCell(2)), 
 		flGoalPos,
 		plugin,
-		view_as<Function>(GetNativeFunction(4)),
+		GetNativeFunction(4),
 		GetNativeCell(5),
 		iClosestIndex,
 		view_as<float>(GetNativeCell(7)),
@@ -3801,7 +3801,7 @@ public any Native_NavMeshAreaGetAdjacentAreas(Handle plugin, int numParams)
 	ArrayList hTarget = view_as<ArrayList>(GetNativeCell(3));
 
 	int iConnectionsStartIndex = g_hNavMeshAreas.Get(iAreaIndex, NavMeshArea_ConnectionsStartIndex);
-	if (iConnectionsStartIndex == -1) return;
+	if (iConnectionsStartIndex == -1) return 0;
 	
 	int iConnectionsEndIndex = g_hNavMeshAreas.Get(iAreaIndex, NavMeshArea_ConnectionsEndIndex);
 	
@@ -3816,6 +3816,7 @@ public any Native_NavMeshAreaGetAdjacentAreas(Handle plugin, int numParams)
 		
 		hTarget.Push(iToAreaIndex);
 	}
+	return 0;
 }
 
 public any Native_NavMeshAreaGetIncomingConnections(Handle plugin, int numParams)
@@ -3825,7 +3826,7 @@ public any Native_NavMeshAreaGetIncomingConnections(Handle plugin, int numParams
 	ArrayList hTarget = view_as<ArrayList>(GetNativeCell(3));
 
 	int iConnectionsStartIndex = g_hNavMeshAreas.Get(iAreaIndex, NavMeshArea_IncomingConnectionsStartIndex);
-	if (iConnectionsStartIndex == -1) return;
+	if (iConnectionsStartIndex == -1) return 0;
 	
 	int iConnectionsEndIndex = g_hNavMeshAreas.Get(iAreaIndex, NavMeshArea_IncomingConnectionsEndIndex);
 	
@@ -3840,6 +3841,7 @@ public any Native_NavMeshAreaGetIncomingConnections(Handle plugin, int numParams
 		
 		hTarget.Push(iFromAreaIndex);
 	}
+	return 0;
 }
 
 public int Native_NavMeshAreaGetLadderList(Handle plugin, int numParams)
@@ -4193,7 +4195,7 @@ public int Native_TFNavAreaGetAttributeFlags(Handle plugin, int numParams)
 
 public any Native_CSNavAreaGetApproachInfoList(Handle plugin, int numParams)
 {
-	if (!g_bNavMeshBuilt) return;
+	if (!g_bNavMeshBuilt) return 0;
 
 	int areaIndex = GetNativeCell(1);
 	ArrayList buffer = view_as<ArrayList>(GetNativeCell(2));
