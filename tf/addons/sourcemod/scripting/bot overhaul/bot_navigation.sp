@@ -139,6 +139,7 @@ int g_StaticAnalysisCursor;
 Handle g_NavigationTimer;
 int g_DebugBeamSprite = -1;
 
+#include "navigation/navigation_math.inc"
 #include "navigation/navigation_core.inc"
 #include "navigation/navigation_graph.inc"
 #include "navigation/navigation_dynamic.inc"
