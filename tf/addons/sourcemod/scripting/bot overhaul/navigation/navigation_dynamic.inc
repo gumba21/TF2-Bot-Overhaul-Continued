@@ -131,20 +131,21 @@ void UpdateAreaControl()
     {
         for (int team = 2; team <= 3; team++)
         {
-            int enemy = team == 2 ? 3 : 2;
             float localFriendly = g_AreaPresence[team][slot];
-            float localEnemy = g_AreaPresence[enemy][slot];
             int start = g_AreaEdgeStart[slot];
             for (int edge = start; edge < start + g_AreaEdgeCount[slot]; edge++)
             {
                 int neighbor = g_EdgeTarget[edge];
                 localFriendly += g_AreaPresence[team][neighbor] * 0.35;
-                localEnemy += g_AreaPresence[enemy][neighbor] * 0.35;
             }
 
+            // Control used by fair route requests is based only on friendly presence,
+            // friendly traffic, and known team damage outcomes. Hidden enemy positions
+            // enter route cost separately through observer-scoped Battlefield Knowledge.
             float friendlySignal = ClampFloat(localFriendly / 3.0, 0.0, 1.0);
-            float enemySignal = ClampFloat(localEnemy / 3.0, 0.0, 1.0);
-            float target = ClampFloat(friendlySignal - enemySignal * 0.55, 0.0, 1.0);
+            float trafficSignal = ClampFloat(g_AreaTraffic[team][slot] / 6.0, 0.0, 1.0);
+            float lossPenalty = ClampFloat(g_AreaDamageHeat[team][slot] * 0.08 + g_AreaDeathHeat[team][slot] * 0.14, 0.0, 0.65);
+            float target = ClampFloat(friendlySignal * 0.78 + trafficSignal * 0.22 - lossPenalty, 0.0, 1.0);
             g_AreaControl[team][slot] += (target - g_AreaControl[team][slot]) * 0.35;
         }
     }
