@@ -50,11 +50,17 @@ Windows PowerShell:
 
 Both scripts download SourceMod 1.12 when `spcomp` is not already available, compile every tracked SourcePawn source, and write the resulting `.smx` files directly into the deployable `tf/addons/sourcemod/plugins/` tree.
 
-The original active plugin set remains active. `sd_doomsday_bots.smx` and `tf2botchatter.smx` compile into `plugins/disabled/` because they were source-only in the supplied package. The original upstream sources for `GiveBotsCosmetics` and `tf_bot_medic_fix` are now tracked in the repository, so every deployed plugin is reproducibly buildable without opaque binary-only exceptions.
+The original active plugin set remains active. `sd_doomsday_bots.smx` and `tf2botchatter.smx` compile into `plugins/disabled/` because they were source-only in the supplied package. The original upstream sources for `GiveBotsCosmetics` and `tf_bot_medic_fix` are tracked in the repository, so every deployed plugin is reproducibly buildable without opaque binary-only exceptions.
 
 ## Major Update 1 — Human Foundation
 
 The current development branch adds a universal human-like layer underneath existing class behavior: configurable sight and hearing, reaction and thinking delays, last-known-position investigation, per-life personality traits, risk/reward intents, believable emergent mistakes, and an optional Unfair baseline. See [`docs/HUMAN_FOUNDATION.md`](docs/HUMAN_FOUNDATION.md).
+
+## Major Update 1.1 — Battlefield Knowledge
+
+`bot_knowledge.smx` adds a shared, perception-aware information layer for future class, weapon, personality, communication, coordination, and Team Director behavior.
+
+It separates authoritative world truth from observer-scoped bot knowledge, preserves lost enemies as decaying memories with positional uncertainty, caches players/buildings/objectives, detects stable groups, estimates the front line, publishes team battlefield states, and exposes a central native query API. Existing combat behavior remains unchanged in observation mode. The Mad Milk pilot is present but disabled by default. See [`docs/BATTLEFIELD_KNOWLEDGE.md`](docs/BATTLEFIELD_KNOWLEDGE.md).
 
 ## Notes
 
