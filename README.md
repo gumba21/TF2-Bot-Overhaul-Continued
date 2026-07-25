@@ -10,7 +10,7 @@ A continuation of the TF2 Bot Overhaul SourceMod and Stripper project, laid out 
 4. Choose **Replace/Overwrite** when prompted.
 5. Launch TF2 or restart the server.
 
-The repository does not place project documentation or build tools inside the game directory. Everything under `tf/` is arranged at the path TF2 expects.
+The repository does not place project documentation or build tools inside the game directory. Everything under `tf/` is arranged at the path TF2 expects. See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for the complete runtime path reference.
 
 ## Repository layout
 
