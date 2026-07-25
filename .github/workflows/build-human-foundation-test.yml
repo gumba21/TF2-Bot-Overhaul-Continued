@@ -1,0 +1,55 @@
+name: Build Human Foundation test plugin
+
+on:
+  push:
+    branches:
+      - feature/human-awareness-v1
+    paths:
+      - .github/workflows/build-human-foundation-test.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Human Foundation branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/human-awareness-v1
+
+      - name: Install 32-bit compiler runtime
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lib32stdc++6 lib32gcc-s1
+
+      - name: Download SourceMod compiler
+        shell: bash
+        run: |
+          set -euo pipefail
+          latest="$(curl -fsSL https://www.sourcemod.net/smdrop/1.12/sourcemod-latest-linux)"
+          curl -fsSL "https://www.sourcemod.net/smdrop/1.12/${latest}" -o /tmp/sourcemod.tar.gz
+          mkdir -p /tmp/sourcemod
+          tar -xzf /tmp/sourcemod.tar.gz -C /tmp/sourcemod
+          chmod +x /tmp/sourcemod/addons/sourcemod/scripting/spcomp
+
+      - name: Compile Human Foundation plugin
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build
+          /tmp/sourcemod/addons/sourcemod/scripting/spcomp \
+            -i/tmp/sourcemod/addons/sourcemod/scripting/include \
+            -obuild/bot_ai.smx \
+            "addons/sourcemod/scripting/bot overhaul/bot_ai.sp"
+
+      - name: Upload Human Foundation test plugin
+        uses: actions/upload-artifact@v4
+        with:
+          name: human-foundation-major-update-1-test
+          path: build/bot_ai.smx
+          if-no-files-found: error
+          retention-days: 30
