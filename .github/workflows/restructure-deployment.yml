@@ -38,6 +38,8 @@ jobs:
             python3 /tmp/restructure_repo.py
             python3 - <<'PY'
           from pathlib import Path
+          import re
+
           root = Path('tf/addons/sourcemod/scripting/bot overhaul')
           for name in ('GiveBotsCosmetics.sp', 'tf_bot_medic_fix.sp'):
               path = root / name
@@ -51,12 +53,20 @@ jobs:
           text = text.replace('Handle bf, const players[], int playersNum', 'Handle bf, const int[] players, int playersNum')
           bot_names.write_text(text, encoding='utf-8')
 
-          rocket_jump = root / 'bot_rocketjump.sp'
-          text = rocket_jump.read_text(encoding='utf-8')
-          text = text.replace('float moveForward(float vel[3],float MaxSpeed)', 'void moveForward(float vel[3],float MaxSpeed)')
-          text = text.replace('\n\treturn vel;\n', '\n')
-          text = text.replace('vel = moveForward(', 'moveForward(')
-          rocket_jump.write_text(text, encoding='utf-8')
+          # Old SourcePawn allowed these helpers to pretend arrays were scalar return
+          # values. Modern SourcePawn requires the already-intended in-place mutation.
+          movement_helpers = ('moveForward', 'moveBackwards', 'moveSide', 'moveSide2')
+          for path in root.glob('*.sp'):
+              text = path.read_text(encoding='utf-8')
+              for helper in movement_helpers:
+                  text = re.sub(
+                      rf'float\s+{helper}\(float vel\[3\],\s*float MaxSpeed\)',
+                      f'void {helper}(float vel[3], float MaxSpeed)',
+                      text,
+                  )
+                  text = text.replace(f'vel = {helper}(', f'{helper}(')
+              text = '\n'.join(line for line in text.split('\n') if line.strip() != 'return vel;')
+              path.write_text(text, encoding='utf-8')
           PY
             git diff --check
           } 2>&1 | tee /tmp/restructure-transform.log
