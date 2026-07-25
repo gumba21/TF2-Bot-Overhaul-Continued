@@ -15,6 +15,7 @@ This is intended as a drop-in update for an installation that already has the re
 ## Runtime paths
 
 - SourcePawn source: `tf/addons/sourcemod/scripting/bot overhaul/`
+- Shared Knowledge API: `tf/addons/sourcemod/scripting/include/bot_knowledge.inc`
 - Active plugins: `tf/addons/sourcemod/plugins/bot overhaul/`
 - Disabled optional plugins: `tf/addons/sourcemod/plugins/disabled/`
 - SourceMod configuration: `tf/addons/sourcemod/configs/`
@@ -37,4 +38,4 @@ or:
 ./tools/build_plugins.ps1
 ```
 
-The build manifest is `tools/plugin-layout.txt`. It currently produces 21 active plugins and 2 disabled optional plugins. GitHub Actions repeats the full build on pushes and pull requests and verifies that the complete deployment plugin set is produced.
+The build manifest is `tools/plugin-layout.txt`. It currently produces 22 active plugins and 2 disabled optional plugins. GitHub Actions repeats the full build on pushes and pull requests and verifies that the complete deployment plugin set is produced.
