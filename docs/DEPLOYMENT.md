@@ -24,6 +24,8 @@ This is intended as a drop-in update for an installation that already has the re
 - Stripper configuration: `tf/addons/stripper*/`
 - MvM population scripts and TF2 scripts: `tf/scripts/`
 
+`bot_knowledge.smx` and its public include are part of the drop-in tree; users do not need to compile Major Update 1.1 before installing it.
+
 ## Build verification
 
 Run either:
