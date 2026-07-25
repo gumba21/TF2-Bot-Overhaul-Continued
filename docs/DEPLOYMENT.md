@@ -16,15 +16,20 @@ This is intended as a drop-in update for an installation that already has the re
 
 - SourcePawn source: `tf/addons/sourcemod/scripting/bot overhaul/`
 - Shared Knowledge API: `tf/addons/sourcemod/scripting/include/bot_knowledge.inc`
+- Tactical Navigation API: `tf/addons/sourcemod/scripting/include/bot_navigation.inc`
+- Nav parser API: `tf/addons/sourcemod/scripting/include/navmesh.inc`
 - Active plugins: `tf/addons/sourcemod/plugins/bot overhaul/`
 - Disabled optional plugins: `tf/addons/sourcemod/plugins/disabled/`
 - SourceMod configuration: `tf/addons/sourcemod/configs/`
+- Optional navigation metadata: `tf/addons/sourcemod/data/bot_overhaul/navigation/`
 - SourceMod gamedata: `tf/addons/sourcemod/gamedata/`
 - Main overhaul configuration: `tf/cfg/TF2_Bot_Overhaul.cfg`
 - Stripper configuration: `tf/addons/stripper*/`
 - MvM population scripts and TF2 scripts: `tf/scripts/`
 
-`bot_knowledge.smx` and its public include are part of the drop-in tree; users do not need to compile Major Update 1.1 before installing it.
+`bot_knowledge.smx`, `00_navmesh.smx`, `bot_navigation.smx`, and their public includes are part of the drop-in tree. No local compile is required before installation.
+
+Tactical Navigation does not require a platform-specific native extension. When a map has no usable `.nav` mesh, it disables itself safely and leaves the existing behavior active.
 
 ## Build verification
 
@@ -40,4 +45,4 @@ or:
 ./tools/build_plugins.ps1
 ```
 
-The build manifest is `tools/plugin-layout.txt`. It currently produces 22 active plugins and 2 disabled optional plugins. GitHub Actions repeats the full build on pushes and pull requests and verifies that the complete deployment plugin set is produced.
+The build manifest is `tools/plugin-layout.txt`. It currently produces 24 active plugins and 2 disabled optional plugins. GitHub Actions repeats the full build on pushes and pull requests, preserves compiler diagnostics, and verifies that the complete deployment plugin set is produced.
