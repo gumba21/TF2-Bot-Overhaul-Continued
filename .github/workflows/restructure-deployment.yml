@@ -72,6 +72,14 @@ jobs:
           text = missions.read_text(encoding='utf-8')
           text = text.replace('char name[13] = "The Commander";', 'char name[14] = "The Commander";')
           missions.write_text(text, encoding='utf-8')
+
+          mvm_ai = root / 'mvm_tf_bot_ai.sp'
+          text = mvm_ai.read_text(encoding='utf-8')
+          text = text.replace(
+              'team == 3 && TFCond == TFCond_DefenseBuffNoCritBlock',
+              'team == 3 && TF2_IsPlayerInCondition(client, TFCond_DefenseBuffNoCritBlock)',
+          )
+          mvm_ai.write_text(text, encoding='utf-8')
           PY
             git diff --check
           } 2>&1 | tee /tmp/restructure-transform.log
