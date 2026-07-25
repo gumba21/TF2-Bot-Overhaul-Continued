@@ -1,6 +1,6 @@
 # TF2 Bot Overhaul Continued
 
-A continuation of the TF2 Bot Overhaul SourceMod and Stripper project, now laid out as a deployment-ready Team Fortress 2 directory.
+A continuation of the TF2 Bot Overhaul SourceMod and Stripper project, laid out as a deployment-ready Team Fortress 2 directory.
 
 ## Install or update
 
@@ -48,9 +48,9 @@ Windows PowerShell:
 ./tools/build_plugins.ps1
 ```
 
-Both scripts download SourceMod 1.12 when `spcomp` is not already available, compile the tracked SourcePawn sources, and write the resulting `.smx` files directly into the deployable `tf/addons/sourcemod/plugins/` tree.
+Both scripts download SourceMod 1.12 when `spcomp` is not already available, compile every tracked SourcePawn source, and write the resulting `.smx` files directly into the deployable `tf/addons/sourcemod/plugins/` tree.
 
-The original active plugin set remains active. `sd_doomsday_bots.smx` and `tf2botchatter.smx` compile into `plugins/disabled/` because they were source-only in the supplied package. The original upstream sources for `GiveBotsCosmetics` and `tf_bot_medic_fix` are pinned and restored during the restructure so every deployed plugin is reproducibly buildable.
+The original active plugin set remains active. `sd_doomsday_bots.smx` and `tf2botchatter.smx` compile into `plugins/disabled/` because they were source-only in the supplied package. The original upstream sources for `GiveBotsCosmetics` and `tf_bot_medic_fix` are now tracked in the repository, so every deployed plugin is reproducibly buildable without opaque binary-only exceptions.
 
 ## Major Update 1 — Human Foundation
 
